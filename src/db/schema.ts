@@ -9,6 +9,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -145,6 +146,12 @@ export const metrics = pgTable(
       .defaultNow(),
   },
   (table) => [
+    // "Satu baris = satu campaign pada satu tanggal" — re-uploading the
+    // same campaign+date should update that day's numbers, not duplicate.
+    uniqueIndex("metrics_campaign_date_unique").on(
+      table.campaignId,
+      table.date
+    ),
     pgPolicy("metrics_select_own_or_admin", {
       for: "select",
       to: "authenticated",

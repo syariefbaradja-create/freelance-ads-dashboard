@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "metrics_campaign_date_unique" ON "metrics" USING btree ("campaign_id","date");

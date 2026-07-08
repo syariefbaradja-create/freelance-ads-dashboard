@@ -34,6 +34,9 @@ export default async function AdminLayout({
             <Link href="/admin/campaigns" className="text-gray-600 hover:text-gray-900">
               Campaign
             </Link>
+            <Link href="/admin/upload" className="text-gray-600 hover:text-gray-900">
+              Upload Data
+            </Link>
           </nav>
         </div>
         <form action={logout}>
