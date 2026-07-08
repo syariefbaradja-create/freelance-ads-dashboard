@@ -1,0 +1,477 @@
+{
+  "id": "d1ff4ebe-068b-4fc9-8a3a-85667473e71f",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.admins": {
+      "name": "admins",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "admins_id_users_id_fk": {
+          "name": "admins_id_users_id_fk",
+          "tableFrom": "admins",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "admins_email_unique": {
+          "name": "admins_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {
+        "admins_select_own": {
+          "name": "admins_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "auth.uid() = \"admins\".\"id\""
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "auth.users": {
+      "name": "users",
+      "schema": "auth",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.campaigns": {
+      "name": "campaigns",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "platform": {
+          "name": "platform",
+          "type": "platform",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "objective": {
+          "name": "objective",
+          "type": "objective",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "catalog_name": {
+          "name": "catalog_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "campaigns_client_id_clients_id_fk": {
+          "name": "campaigns_client_id_clients_id_fk",
+          "tableFrom": "campaigns",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "campaigns_select_own_or_admin": {
+          "name": "campaigns_select_own_or_admin",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"campaigns\".\"client_id\" = auth.uid() or exists (select 1 from \"admins\" where \"admins\".\"id\" = auth.uid())"
+        },
+        "campaigns_admin_write": {
+          "name": "campaigns_admin_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from \"admins\" where \"admins\".\"id\" = auth.uid())",
+          "withCheck": "exists (select 1 from \"admins\" where \"admins\".\"id\" = auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.clients": {
+      "name": "clients",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "clients_id_users_id_fk": {
+          "name": "clients_id_users_id_fk",
+          "tableFrom": "clients",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "clients_email_unique": {
+          "name": "clients_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {
+        "clients_select_self_or_admin": {
+          "name": "clients_select_self_or_admin",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "auth.uid() = \"clients\".\"id\" or exists (select 1 from \"admins\" where \"admins\".\"id\" = auth.uid())"
+        },
+        "clients_admin_write": {
+          "name": "clients_admin_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from \"admins\" where \"admins\".\"id\" = auth.uid())",
+          "withCheck": "exists (select 1 from \"admins\" where \"admins\".\"id\" = auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.metrics": {
+      "name": "metrics",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "campaign_id": {
+          "name": "campaign_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "spend": {
+          "name": "spend",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "impressions": {
+          "name": "impressions",
+          "type": "numeric(14, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reach": {
+          "name": "reach",
+          "type": "numeric(14, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "frequency": {
+          "name": "frequency",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "clicks": {
+          "name": "clicks",
+          "type": "numeric(14, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "post_engagements": {
+          "name": "post_engagements",
+          "type": "numeric(14, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "video_views": {
+          "name": "video_views",
+          "type": "numeric(14, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "leads": {
+          "name": "leads",
+          "type": "numeric(14, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conversions": {
+          "name": "conversions",
+          "type": "numeric(14, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "purchases": {
+          "name": "purchases",
+          "type": "numeric(14, 0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revenue": {
+          "name": "revenue",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "metrics_campaign_id_campaigns_id_fk": {
+          "name": "metrics_campaign_id_campaigns_id_fk",
+          "tableFrom": "metrics",
+          "tableTo": "campaigns",
+          "columnsFrom": [
+            "campaign_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "metrics_created_by_admins_id_fk": {
+          "name": "metrics_created_by_admins_id_fk",
+          "tableFrom": "metrics",
+          "tableTo": "admins",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "metrics_select_own_or_admin": {
+          "name": "metrics_select_own_or_admin",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\n        exists (select 1 from \"admins\" where \"admins\".\"id\" = auth.uid())\n        or \"metrics\".\"campaign_id\" in (\n          select \"campaigns\".\"id\" from \"campaigns\" where \"campaigns\".\"client_id\" = auth.uid()\n        )\n      "
+        },
+        "metrics_admin_write": {
+          "name": "metrics_admin_write",
+          "as": "PERMISSIVE",
+          "for": "ALL",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (select 1 from \"admins\" where \"admins\".\"id\" = auth.uid())",
+          "withCheck": "exists (select 1 from \"admins\" where \"admins\".\"id\" = auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    }
+  },
+  "enums": {
+    "public.objective": {
+      "name": "objective",
+      "schema": "public",
+      "values": [
+        "awareness",
+        "traffic",
+        "engagement",
+        "leads",
+        "sales",
+        "meta_cpas"
+      ]
+    },
+    "public.platform": {
+      "name": "platform",
+      "schema": "public",
+      "values": [
+        "meta",
+        "tiktok",
+        "google"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
