@@ -18,7 +18,7 @@ import {
   PLATFORM_LABELS,
 } from "@/lib/metrics/objective";
 import type { MetricRow } from "@/lib/metrics/summary";
-import type { CampaignRow } from "./data";
+import type { CampaignRow } from "@/lib/metrics/campaign-row";
 
 export function CampaignList({
   campaigns,
@@ -52,6 +52,7 @@ export function CampaignList({
                     {campaign.name}
                   </span>
                   <span className="ml-2 text-xs text-gray-500">
+                    {campaign.clientName && `${campaign.clientName} · `}
                     {PLATFORM_LABELS[campaign.platform]} ·{" "}
                     {OBJECTIVE_LABELS[campaign.objective]}
                   </span>

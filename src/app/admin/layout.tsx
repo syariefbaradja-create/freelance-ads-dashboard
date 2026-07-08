@@ -24,9 +24,9 @@ export default async function AdminLayout({
     <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
       <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
         <div className="flex items-center gap-6">
-          <span className="font-semibold text-gray-900">
-            Admin — Dashboard Ads
-          </span>
+          <Link href="/admin" className="font-semibold text-gray-900">
+            Dashboard
+          </Link>
           <nav className="flex gap-4 text-sm">
             <Link href="/admin/clients" className="text-gray-600 hover:text-gray-900">
               Klien

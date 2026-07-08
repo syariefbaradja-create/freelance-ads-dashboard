@@ -1,14 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Objective, Platform } from "@/lib/metrics/objective";
 import type { MetricRow } from "@/lib/metrics/summary";
+import type { CampaignRow } from "@/lib/metrics/campaign-row";
 
-export type CampaignRow = {
-  id: string;
-  name: string;
-  platform: Platform;
-  objective: Objective;
-  catalog_name: string | null;
-};
+export type { CampaignRow };
 
 type MetricRowRaw = {
   id: string;

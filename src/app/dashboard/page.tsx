@@ -6,16 +6,13 @@ import {
   type Objective,
   type Platform,
 } from "@/lib/metrics/objective";
-import {
-  aggregateMetrics,
-  buildSummaryCards,
-  objectiveSummaryTitle,
-} from "@/lib/metrics/summary";
-import { buildTrend, OBJECTIVE_PRIMARY_FIELD } from "@/lib/metrics/trend";
+import { objectiveSummaryTitle } from "@/lib/metrics/summary";
+import { buildSummaryGroups } from "@/lib/metrics/build-summary-groups";
+import { OBJECTIVE_PRIMARY_FIELD } from "@/lib/metrics/trend";
 import { getDashboardData } from "./data";
 import { FilterBar } from "./filter-bar";
-import { TrendChart } from "./trend-chart";
-import { CampaignList } from "./campaign-list";
+import { TrendChart } from "@/components/dashboard/trend-chart";
+import { CampaignList } from "@/components/dashboard/campaign-list";
 import { RefreshButton } from "./refresh-button";
 
 type SearchParams = {
@@ -57,23 +54,11 @@ export default async function DashboardPage({
     dateTo,
   });
 
-  const objectivesPresent = Array.from(
-    new Set(campaigns.map((c) => c.objective))
+  const summaryGroups = buildSummaryGroups(
+    campaigns,
+    metricsByCampaign,
+    granularity
   );
-
-  const summaryGroups = objectivesPresent.map((objective) => {
-    const idsForObjective = campaigns
-      .filter((c) => c.objective === objective)
-      .map((c) => c.id);
-    const rows = idsForObjective.flatMap(
-      (id) => metricsByCampaign.get(id) ?? []
-    );
-    return {
-      objective,
-      cards: buildSummaryCards(objective, aggregateMetrics(rows)),
-      trend: buildTrend(rows, granularity, OBJECTIVE_PRIMARY_FIELD[objective]),
-    };
-  });
 
   return (
     <div className="space-y-8">

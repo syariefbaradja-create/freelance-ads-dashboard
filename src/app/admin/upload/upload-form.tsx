@@ -31,6 +31,7 @@ export function UploadForm() {
   const [committing, setCommitting] = useState(false);
   const [commitError, setCommitError] = useState<string | null>(null);
   const [committed, setCommitted] = useState<number | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const rows = useMemo(() => state.rows ?? [], [state.rows]);
   const counts = useMemo(() => {
@@ -89,13 +90,25 @@ export function UploadForm() {
           >
             File Excel (.xlsx) atau CSV
           </label>
+          <div className="flex items-center gap-3">
+            <label
+              htmlFor="file"
+              className="cursor-pointer rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
+            >
+              Pilih File
+            </label>
+            <span className="text-sm text-gray-600">
+              {fileName ?? "Belum ada file dipilih"}
+            </span>
+          </div>
           <input
             id="file"
             name="file"
             type="file"
             accept=".xlsx,.csv"
             required
-            className="w-full text-sm text-gray-900"
+            onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)}
+            className="sr-only"
           />
           <p className="mt-1 text-xs text-gray-500">
             Maksimal 5MB. Gunakan template dengan sheet &quot;Data
@@ -110,7 +123,7 @@ export function UploadForm() {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+          className="rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:opacity-50"
         >
           {pending ? "Memproses..." : "Preview"}
         </button>
