@@ -19,6 +19,20 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  // Re-check is_active on every request (not just at login) so a client
+  // deactivated mid-session is kicked out immediately, not just once their
+  // JWT expires.
+  const { data: clientRow } = await supabase
+    .from("clients")
+    .select("is_active")
+    .eq("id", user.id)
+    .single();
+
+  if (!clientRow?.is_active) {
+    await supabase.auth.signOut();
+    redirect("/login");
+  }
+
   return (
     <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
       <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">

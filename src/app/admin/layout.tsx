@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getRole } from "@/lib/auth/role";
@@ -22,9 +23,19 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
       <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-        <span className="font-semibold text-gray-900">
-          Admin — Dashboard Ads
-        </span>
+        <div className="flex items-center gap-6">
+          <span className="font-semibold text-gray-900">
+            Admin — Dashboard Ads
+          </span>
+          <nav className="flex gap-4 text-sm">
+            <Link href="/admin/clients" className="text-gray-600 hover:text-gray-900">
+              Klien
+            </Link>
+            <Link href="/admin/campaigns" className="text-gray-600 hover:text-gray-900">
+              Campaign
+            </Link>
+          </nav>
+        </div>
         <form action={logout}>
           <button
             type="submit"

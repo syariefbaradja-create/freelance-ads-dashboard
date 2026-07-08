@@ -1,0 +1,50 @@
+import { notFound } from "next/navigation";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { campaigns, metrics } from "@/db/schema";
+import { MetricForm } from "../../metric-form";
+import { updateMetric } from "../../actions";
+
+export default async function EditMetricPage({
+  params,
+}: {
+  params: Promise<{ id: string; metricId: string }>;
+}) {
+  const { id, metricId } = await params;
+
+  const [[campaign], [metric]] = await Promise.all([
+    db.select().from(campaigns).where(eq(campaigns.id, id)),
+    db.select().from(metrics).where(eq(metrics.id, metricId)),
+  ]);
+
+  if (!campaign || !metric) {
+    notFound();
+  }
+
+  return (
+    <div className="max-w-lg">
+      <h1 className="mb-6 text-2xl font-semibold text-gray-900">
+        Edit Data Harian
+      </h1>
+      <MetricForm
+        campaignId={campaign.id}
+        objective={campaign.objective}
+        action={updateMetric.bind(null, metric.id, campaign.id)}
+        defaultValues={{
+          date: metric.date,
+          spend: metric.spend,
+          impressions: metric.impressions,
+          reach: metric.reach,
+          frequency: metric.frequency,
+          clicks: metric.clicks,
+          postEngagements: metric.postEngagements,
+          videoViews: metric.videoViews,
+          leads: metric.leads,
+          conversions: metric.conversions,
+          purchases: metric.purchases,
+          revenue: metric.revenue,
+        }}
+      />
+    </div>
+  );
+}
