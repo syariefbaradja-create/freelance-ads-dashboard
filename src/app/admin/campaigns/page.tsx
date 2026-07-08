@@ -1,22 +1,35 @@
 import Link from "next/link";
-import { desc, eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { campaigns, clients } from "@/db/schema";
 import { OBJECTIVE_LABELS, PLATFORM_LABELS } from "@/lib/metrics/objective";
 import { DeleteCampaignButton } from "./delete-campaign-button";
 
-export default async function CampaignsPage() {
-  const rows = await db
-    .select({
-      id: campaigns.id,
-      name: campaigns.name,
-      platform: campaigns.platform,
-      objective: campaigns.objective,
-      clientName: clients.name,
-    })
-    .from(campaigns)
-    .innerJoin(clients, eq(campaigns.clientId, clients.id))
-    .orderBy(desc(campaigns.createdAt));
+export default async function CampaignsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ clientId?: string }>;
+}) {
+  const { clientId } = await searchParams;
+
+  const [clientsList, rows] = await Promise.all([
+    db
+      .select({ id: clients.id, name: clients.name })
+      .from(clients)
+      .orderBy(asc(clients.name)),
+    db
+      .select({
+        id: campaigns.id,
+        name: campaigns.name,
+        platform: campaigns.platform,
+        objective: campaigns.objective,
+        clientName: clients.name,
+      })
+      .from(campaigns)
+      .innerJoin(clients, eq(campaigns.clientId, clients.id))
+      .where(clientId ? eq(campaigns.clientId, clientId) : undefined)
+      .orderBy(asc(clients.name), asc(campaigns.name)),
+  ]);
 
   return (
     <div>
@@ -29,6 +42,39 @@ export default async function CampaignsPage() {
           + Tambah Campaign
         </Link>
       </div>
+
+      <form
+        method="GET"
+        className="mb-4 flex items-end gap-3 rounded-lg border border-gray-200 bg-white p-4"
+      >
+        <div>
+          <label
+            htmlFor="clientId"
+            className="mb-1 block text-xs font-medium text-gray-700"
+          >
+            Client
+          </label>
+          <select
+            id="clientId"
+            name="clientId"
+            defaultValue={clientId ?? ""}
+            className="rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
+          >
+            <option value="">Semua</option>
+            {clientsList.map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="submit"
+          className="rounded-md bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800"
+        >
+          Terapkan
+        </button>
+      </form>
 
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
         <table className="w-full text-sm">
@@ -78,8 +124,9 @@ export default async function CampaignsPage() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                  Belum ada campaign. Klik &quot;+ Tambah Campaign&quot; untuk
-                  mulai.
+                  {clientId
+                    ? "Tidak ada campaign untuk client ini."
+                    : 'Belum ada campaign. Klik "+ Tambah Campaign" untuk mulai.'}
                 </td>
               </tr>
             )}
