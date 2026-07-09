@@ -104,9 +104,10 @@ export default async function AdminHomePage({
       />
 
       {campaigns.length === 0 && (
-        <p className="text-slate-500">
-          Belum ada campaign yang cocok dengan filter ini.
-        </p>
+        <div className="empty-state">
+          <p className="text-2xl">📭</p>
+          <p>Belum ada campaign yang cocok dengan filter ini.</p>
+        </div>
       )}
 
       {budgetByClient.length > 0 && (
