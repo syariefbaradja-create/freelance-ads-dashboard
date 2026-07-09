@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteMetric } from "./actions";
+import { deleteMetric } from "@/lib/actions/metrics";
 
 export function DeleteMetricButton({
   metricId,

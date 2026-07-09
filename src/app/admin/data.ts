@@ -1,9 +1,10 @@
 import { and, asc, eq, gte, inArray, lte } from "drizzle-orm";
 import { db } from "@/db";
-import { campaigns, clients, metrics } from "@/db/schema";
+import { campaigns, clients, metrics, topups } from "@/db/schema";
 import type { CampaignRow } from "@/lib/metrics/campaign-row";
 import type { MetricRow } from "@/lib/metrics/summary";
 import type { Objective, Platform } from "@/lib/metrics/objective";
+import { calcClientBudget } from "@/lib/metrics/budget";
 
 export type AdminDashboardFilters = {
   clientId: string | null;
@@ -61,10 +62,9 @@ export async function getAdminDashboardData(filters: AdminDashboardFilters) {
   }));
 
   const campaignIds = campaignRows.map((c) => c.id);
-  const campaignToClient = new Map(campaignRows.map((c) => [c.id, c.clientId]));
 
   const metricsByCampaign = new Map<string, MetricRow[]>();
-  const spendByClientId = new Map<string, number>();
+  let totalSpend = 0;
 
   if (campaignIds.length > 0) {
     const metricConditions = [inArray(metrics.campaignId, campaignIds)];
@@ -96,36 +96,65 @@ export async function getAdminDashboardData(filters: AdminDashboardFilters) {
       const list = metricsByCampaign.get(raw.campaignId) ?? [];
       list.push(row);
       metricsByCampaign.set(raw.campaignId, list);
-
-      const clientId = campaignToClient.get(raw.campaignId);
-      if (clientId) {
-        spendByClientId.set(
-          clientId,
-          (spendByClientId.get(clientId) ?? 0) + row.spend
-        );
-      }
+      totalSpend += row.spend;
     }
   }
 
-  const spendByClient = clientsList
+  // Budget per client is deliberately all-time (unfiltered) — "sisa budget"
+  // must reflect every top up and every rupiah ever spent, not just the
+  // slice currently being viewed above.
+  const [allCampaigns, allTopups] = await Promise.all([
+    db.select({ id: campaigns.id, clientId: campaigns.clientId }).from(campaigns),
+    db.select({ clientId: topups.clientId, amount: topups.amount }).from(topups),
+  ]);
+
+  const allCampaignToClient = new Map(
+    allCampaigns.map((c) => [c.id, c.clientId])
+  );
+  const allCampaignIds = allCampaigns.map((c) => c.id);
+
+  const allTimeMetrics =
+    allCampaignIds.length > 0
+      ? await db
+          .select({ campaignId: metrics.campaignId, spend: metrics.spend })
+          .from(metrics)
+      : [];
+
+  const allTimeSpendByClient = new Map<string, number>();
+  for (const m of allTimeMetrics) {
+    const clientId = allCampaignToClient.get(m.campaignId);
+    if (!clientId) continue;
+    allTimeSpendByClient.set(
+      clientId,
+      (allTimeSpendByClient.get(clientId) ?? 0) + Number(m.spend)
+    );
+  }
+
+  const allTimeTopupByClient = new Map<string, number>();
+  for (const t of allTopups) {
+    allTimeTopupByClient.set(
+      t.clientId,
+      (allTimeTopupByClient.get(t.clientId) ?? 0) + Number(t.amount)
+    );
+  }
+
+  const budgetByClient = clientsList
     .map((c) => ({
       id: c.id,
       name: c.name,
       isActive: c.isActive,
-      spend: spendByClientId.get(c.id) ?? 0,
+      ...calcClientBudget(
+        allTimeTopupByClient.get(c.id) ?? 0,
+        allTimeSpendByClient.get(c.id) ?? 0
+      ),
     }))
-    .sort((a, b) => b.spend - a.spend);
-
-  const totalSpend = Array.from(spendByClientId.values()).reduce(
-    (a, b) => a + b,
-    0
-  );
+    .sort((a, b) => b.remaining - a.remaining);
 
   return {
     clientsList,
     campaigns: campaignsOut,
     metricsByCampaign,
-    spendByClient,
+    budgetByClient,
     overview: {
       totalClients: clientsList.length,
       activeClientCount: clientsList.filter((c) => c.isActive).length,

@@ -170,3 +170,38 @@ export const metrics = pgTable(
     }),
   ]
 ).enableRLS();
+
+export const topups = pgTable(
+  "topups",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clientId: uuid("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+    date: date("date").notNull(),
+    note: text("note"),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => admins.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy("topups_select_own_or_admin", {
+      for: "select",
+      to: "authenticated",
+      using: sql`${table.clientId} = auth.uid() or exists (select 1 from ${admins} where ${admins.id} = auth.uid())`,
+    }),
+    pgPolicy("topups_admin_write", {
+      for: "all",
+      to: "authenticated",
+      using: sql`exists (select 1 from ${admins} where ${admins.id} = auth.uid())`,
+      withCheck: sql`exists (select 1 from ${admins} where ${admins.id} = auth.uid())`,
+    }),
+  ]
+).enableRLS();

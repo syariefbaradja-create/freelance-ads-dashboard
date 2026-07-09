@@ -48,7 +48,7 @@ export default async function AdminHomePage({
   const dateFrom = params.from || null;
   const dateTo = params.to || null;
 
-  const { clientsList, campaigns, metricsByCampaign, spendByClient, overview } =
+  const { clientsList, campaigns, metricsByCampaign, budgetByClient, overview } =
     await getAdminDashboardData({
       clientId: clientFilter,
       platform: platformFilter,
@@ -106,10 +106,10 @@ export default async function AdminHomePage({
         </p>
       )}
 
-      {spendByClient.length > 0 && (
+      {budgetByClient.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-semibold text-gray-900">
-            Spend per Klien
+            Budget per Klien (sepanjang waktu)
           </h2>
           <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
             <table className="w-full text-sm">
@@ -117,11 +117,14 @@ export default async function AdminHomePage({
                 <tr>
                   <th className="px-4 py-3 font-medium">Klien</th>
                   <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Spend</th>
+                  <th className="px-4 py-3 font-medium">Total Top Up</th>
+                  <th className="px-4 py-3 font-medium">Total Spend</th>
+                  <th className="px-4 py-3 font-medium">Sisa Budget</th>
+                  <th className="px-4 py-3 font-medium" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {spendByClient.map((client) => (
+                {budgetByClient.map((client) => (
                   <tr key={client.id}>
                     <td className="px-4 py-3 text-gray-900">
                       <Link
@@ -143,7 +146,29 @@ export default async function AdminHomePage({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-600">
-                      {formatCurrency(client.spend)}
+                      {formatCurrency(client.totalTopup)}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {formatCurrency(client.totalSpend)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={
+                          client.remaining < 0
+                            ? "font-medium text-red-600"
+                            : "text-gray-600"
+                        }
+                      >
+                        {formatCurrency(client.remaining)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/admin/clients/${client.id}/budget`}
+                        className="text-gray-600 hover:text-gray-900"
+                      >
+                        Kelola
+                      </Link>
                     </td>
                   </tr>
                 ))}

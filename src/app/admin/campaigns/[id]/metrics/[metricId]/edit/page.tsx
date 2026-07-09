@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { campaigns, metrics } from "@/db/schema";
-import { MetricForm } from "../../metric-form";
-import { updateMetric } from "../../actions";
+import { MetricForm } from "@/components/admin/metric-form";
+import { updateMetric } from "@/lib/actions/metrics";
 
 export default async function EditMetricPage({
   params,

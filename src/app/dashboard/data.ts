@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Objective, Platform } from "@/lib/metrics/objective";
 import type { MetricRow } from "@/lib/metrics/summary";
 import type { CampaignRow } from "@/lib/metrics/campaign-row";
+import { calcClientBudget, type ClientBudget } from "@/lib/metrics/budget";
 
 export type { CampaignRow };
 
@@ -106,4 +107,40 @@ export async function getDashboardData(
   }
 
   return { campaigns, metricsByCampaign };
+}
+
+/**
+ * All-time budget for the logged-in client — deliberately ignores the
+ * dashboard's date/platform/objective filters, since "sisa budget" should
+ * reflect every top up and every rupiah spent, not just the filtered view.
+ */
+export async function getClientBudget(
+  supabase: SupabaseClient
+): Promise<ClientBudget> {
+  const [{ data: topupRows }, { data: campaignRows }] = await Promise.all([
+    supabase.from("topups").select("amount"),
+    supabase.from("campaigns").select("id"),
+  ]);
+
+  const totalTopup = (topupRows ?? []).reduce(
+    (sum: number, t: { amount: string }) => sum + Number(t.amount),
+    0
+  );
+
+  const campaignIds = (campaignRows ?? []).map((c: { id: string }) => c.id);
+  let totalSpend = 0;
+
+  if (campaignIds.length > 0) {
+    const { data: metricRows } = await supabase
+      .from("metrics")
+      .select("spend")
+      .in("campaign_id", campaignIds);
+
+    totalSpend = (metricRows ?? []).reduce(
+      (sum: number, m: { spend: string }) => sum + Number(m.spend),
+      0
+    );
+  }
+
+  return calcClientBudget(totalTopup, totalSpend);
 }

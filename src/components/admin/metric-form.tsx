@@ -9,7 +9,7 @@ import {
   type MetricFieldKey,
   type Objective,
 } from "@/lib/metrics/objective";
-import type { MetricFormState } from "./actions";
+import type { MetricFormState } from "@/lib/actions/metrics";
 
 type MetricAction = (
   prevState: MetricFormState,
@@ -21,6 +21,7 @@ export function MetricForm({
   objective,
   action,
   defaultValues,
+  cancelHref,
 }: {
   campaignId: string;
   objective: Objective;
@@ -28,6 +29,7 @@ export function MetricForm({
   defaultValues?: { date: string; spend: string } & Partial<
     Record<MetricFieldKey, string | null>
   >;
+  cancelHref?: string;
 }) {
   const [state, formAction, pending] = useActionState(
     action,
@@ -117,7 +119,7 @@ export function MetricForm({
           {pending ? "Menyimpan..." : "Simpan"}
         </button>
         <Link
-          href={`/admin/campaigns/${campaignId}`}
+          href={cancelHref ?? `/admin/campaigns/${campaignId}`}
           className="rounded-md px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
         >
           Batal

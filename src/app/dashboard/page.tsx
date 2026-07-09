@@ -9,7 +9,8 @@ import {
 import { objectiveSummaryTitle } from "@/lib/metrics/summary";
 import { buildSummaryGroups } from "@/lib/metrics/build-summary-groups";
 import { OBJECTIVE_PRIMARY_FIELD } from "@/lib/metrics/trend";
-import { getDashboardData } from "./data";
+import { formatCurrency } from "@/lib/metrics/derived";
+import { getClientBudget, getDashboardData } from "./data";
 import { FilterBar } from "./filter-bar";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 import { CampaignList } from "@/components/dashboard/campaign-list";
@@ -47,12 +48,15 @@ export default async function DashboardPage({
   const dateTo = params.to || null;
 
   const supabase = await createClient();
-  const { campaigns, metricsByCampaign } = await getDashboardData(supabase, {
-    platform: platformFilter,
-    objective: objectiveFilter,
-    dateFrom,
-    dateTo,
-  });
+  const [{ campaigns, metricsByCampaign }, budget] = await Promise.all([
+    getDashboardData(supabase, {
+      platform: platformFilter,
+      objective: objectiveFilter,
+      dateFrom,
+      dateTo,
+    }),
+    getClientBudget(supabase),
+  ]);
 
   const summaryGroups = buildSummaryGroups(
     campaigns,
@@ -67,6 +71,31 @@ export default async function DashboardPage({
           Ringkasan Performa
         </h1>
         <RefreshButton />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Total Top Up</p>
+          <p className="mt-1 text-lg font-semibold text-gray-900">
+            {formatCurrency(budget.totalTopup)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Total Spend</p>
+          <p className="mt-1 text-lg font-semibold text-gray-900">
+            {formatCurrency(budget.totalSpend)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-xs text-gray-500">Sisa Budget</p>
+          <p
+            className={`mt-1 text-lg font-semibold ${
+              budget.remaining < 0 ? "text-red-600" : "text-gray-900"
+            }`}
+          >
+            {formatCurrency(budget.remaining)}
+          </p>
+        </div>
       </div>
 
       <FilterBar
