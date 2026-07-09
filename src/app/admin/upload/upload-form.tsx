@@ -11,8 +11,8 @@ import {
 const initialState: ParseUploadState = {};
 
 const STATUS_STYLES: Record<string, string> = {
-  ok: "bg-green-100 text-green-700",
-  warning: "bg-yellow-100 text-yellow-700",
+  ok: "bg-emerald-100 text-emerald-700",
+  warning: "bg-amber-100 text-amber-700",
   error: "bg-red-100 text-red-700",
 };
 
@@ -62,14 +62,14 @@ export function UploadForm() {
 
   if (committed !== null) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <p className="text-sm text-gray-900">
+      <div className="card p-6">
+        <p className="text-sm text-slate-900">
           Berhasil menyimpan {committed} baris data.
         </p>
         <button
           type="button"
           onClick={() => router.push("/admin/campaigns")}
-          className="mt-4 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="btn-primary mt-4"
         >
           Lihat Campaign
         </button>
@@ -79,25 +79,19 @@ export function UploadForm() {
 
   return (
     <div className="space-y-6">
-      <form
-        action={formAction}
-        className="space-y-4 rounded-lg border border-gray-200 bg-white p-6"
-      >
+      <form action={formAction} className="card space-y-4 p-6">
         <div>
-          <label
-            htmlFor="file"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="file" className="field-label">
             File Excel (.xlsx) atau CSV
           </label>
           <div className="flex items-center gap-3">
             <label
               htmlFor="file"
-              className="cursor-pointer rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
+              className="cursor-pointer rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-500"
             >
               Pilih File
             </label>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-slate-600">
               {fileName ?? "Belum ada file dipilih"}
             </span>
           </div>
@@ -110,7 +104,7 @@ export function UploadForm() {
             onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)}
             className="sr-only"
           />
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-slate-500">
             Maksimal 5MB. Gunakan template dengan sheet &quot;Data
             Entry&quot;.
           </p>
@@ -123,7 +117,7 @@ export function UploadForm() {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? "Memproses..." : "Preview"}
         </button>
@@ -132,7 +126,7 @@ export function UploadForm() {
       {rows.length > 0 && (
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600">
               {state.fileName} — {rows.length} baris ({counts.ok} OK,{" "}
               {counts.warning} warning, {counts.error} error)
             </p>
@@ -140,7 +134,7 @@ export function UploadForm() {
               type="button"
               onClick={handleSave}
               disabled={committing || savableRows.length === 0}
-              className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+              className="btn-primary"
             >
               {committing
                 ? "Menyimpan..."
@@ -154,41 +148,35 @@ export function UploadForm() {
             </p>
           )}
 
-          <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-left text-gray-500">
+          <div className="table-card overflow-x-auto">
+            <table className="table-base">
+              <thead>
                 <tr>
-                  <th className="px-4 py-3 font-medium">Baris</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Client</th>
-                  <th className="px-4 py-3 font-medium">Campaign</th>
-                  <th className="px-4 py-3 font-medium">Tanggal</th>
-                  <th className="px-4 py-3 font-medium">Catatan</th>
+                  <th>Baris</th>
+                  <th>Status</th>
+                  <th>Client</th>
+                  <th>Campaign</th>
+                  <th>Tanggal</th>
+                  <th>Catatan</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {rows.map((row) => (
                   <tr key={row.rowNumber}>
-                    <td className="px-4 py-3 text-gray-500">
-                      {row.rowNumber}
-                    </td>
-                    <td className="px-4 py-3">
+                    <td className="text-slate-500">{row.rowNumber}</td>
+                    <td>
                       <span
-                        className={`rounded-full px-2 py-1 text-xs font-medium ${STATUS_STYLES[row.status]}`}
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[row.status]}`}
                       >
                         {STATUS_LABELS[row.status]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-900">
+                    <td className="font-medium text-slate-900">
                       {row.preview.clientName}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {row.preview.campaignName}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {row.preview.date}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td>{row.preview.campaignName}</td>
+                    <td>{row.preview.date}</td>
+                    <td>
                       {row.messages.length > 0 && (
                         <ul className="list-inside list-disc space-y-1">
                           {row.messages.map((message, i) => (

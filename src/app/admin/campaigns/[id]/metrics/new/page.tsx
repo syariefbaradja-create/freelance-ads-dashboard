@@ -22,9 +22,7 @@ export default async function NewMetricPage({
 
   return (
     <div className="max-w-lg">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">
-        Tambah Data Harian
-      </h1>
+      <h1 className="mb-6 page-title">Tambah Data Harian</h1>
       <MetricForm
         campaignId={campaign.id}
         objective={campaign.objective}

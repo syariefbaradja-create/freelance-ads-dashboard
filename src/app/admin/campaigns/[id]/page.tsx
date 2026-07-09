@@ -48,15 +48,18 @@ export default async function CampaignDetailPage({
   return (
     <div>
       <div className="mb-6">
-        <p className="text-sm text-gray-500">
-          {campaign.clientName} · {PLATFORM_LABELS[campaign.platform]} ·{" "}
-          {OBJECTIVE_LABELS[campaign.objective]}
-        </p>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          {campaign.name}
-        </h1>
+        <div className="flex items-center gap-2 text-sm text-slate-500">
+          <span>{campaign.clientName}</span>
+          <span className="badge-indigo">
+            {PLATFORM_LABELS[campaign.platform]}
+          </span>
+          <span className="badge-gray">
+            {OBJECTIVE_LABELS[campaign.objective]}
+          </span>
+        </div>
+        <h1 className="page-title">{campaign.name}</h1>
         {campaign.catalogName && (
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-slate-500">
             Catalog: {campaign.catalogName}
           </p>
         )}
@@ -65,48 +68,41 @@ export default async function CampaignDetailPage({
       <div className="mb-4 flex justify-end">
         <Link
           href={`/admin/campaigns/${campaign.id}/metrics/new`}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="btn-primary"
         >
           + Tambah Data Harian
         </Link>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-gray-500">
+      <div className="table-card overflow-x-auto">
+        <table className="table-base">
+          <thead>
             <tr>
-              <th className="px-4 py-3 font-medium">Tanggal</th>
-              <th className="px-4 py-3 font-medium">Spend</th>
+              <th>Tanggal</th>
+              <th>Spend</th>
               {fields.map((field) => (
-                <th key={field} className="px-4 py-3 font-medium">
-                  {METRIC_FIELD_LABELS[field]}
-                </th>
+                <th key={field}>{METRIC_FIELD_LABELS[field]}</th>
               ))}
-              <th className="px-4 py-3 font-medium" />
+              <th />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {metricRows.map((metric) => (
               <tr key={metric.id}>
-                <td className="whitespace-nowrap px-4 py-3 text-gray-900">
+                <td className="whitespace-nowrap font-medium text-slate-900">
                   {metric.date}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-gray-600">
-                  {metric.spend}
-                </td>
+                <td className="whitespace-nowrap">{metric.spend}</td>
                 {fields.map((field) => (
-                  <td
-                    key={field}
-                    className="whitespace-nowrap px-4 py-3 text-gray-600"
-                  >
+                  <td key={field} className="whitespace-nowrap">
                     {metric[field] ?? "-"}
                   </td>
                 ))}
-                <td className="whitespace-nowrap px-4 py-3">
-                  <div className="flex justify-end gap-3">
+                <td className="whitespace-nowrap">
+                  <div className="flex justify-end gap-4 text-sm">
                     <Link
                       href={`/admin/campaigns/${campaign.id}/metrics/${metric.id}/edit`}
-                      className="text-gray-600 hover:text-gray-900"
+                      className="font-medium text-indigo-600 hover:text-indigo-500"
                     >
                       Edit
                     </Link>
@@ -122,7 +118,7 @@ export default async function CampaignDetailPage({
               <tr>
                 <td
                   colSpan={fields.length + 3}
-                  className="px-4 py-8 text-center text-gray-500"
+                  className="py-8 text-center text-slate-500"
                 >
                   Belum ada data harian untuk campaign ini.
                 </td>

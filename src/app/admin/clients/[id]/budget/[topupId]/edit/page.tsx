@@ -23,9 +23,7 @@ export default async function EditTopupPage({
 
   return (
     <div className="max-w-lg">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">
-        Edit Top Up — {client.name}
-      </h1>
+      <h1 className="mb-6 page-title">Edit Top Up — {client.name}</h1>
       <TopupForm
         clientId={client.id}
         action={updateTopup.bind(null, topup.id, client.id)}

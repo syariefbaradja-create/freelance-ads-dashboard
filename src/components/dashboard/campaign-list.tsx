@@ -31,9 +31,7 @@ export function CampaignList({
 
   return (
     <section>
-      <h2 className="mb-3 text-lg font-semibold text-gray-900">
-        Detail Campaign
-      </h2>
+      <h2 className="mb-3 section-title">Detail Campaign</h2>
       <div className="space-y-3">
         {campaigns.map((campaign) => {
           const rows = (metricsByCampaign.get(campaign.id) ?? [])
@@ -42,120 +40,110 @@ export function CampaignList({
           const fields = OBJECTIVE_METRIC_FIELDS[campaign.objective];
 
           return (
-            <details
-              key={campaign.id}
-              className="rounded-lg border border-gray-200 bg-white"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
-                <div>
-                  <span className="font-medium text-gray-900">
+            <details key={campaign.id} className="table-card">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 marker:content-none">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-slate-900">
                     {campaign.name}
                   </span>
-                  <span className="ml-2 text-xs text-gray-500">
-                    {campaign.clientName && `${campaign.clientName} · `}
-                    {PLATFORM_LABELS[campaign.platform]} ·{" "}
+                  {campaign.clientName && (
+                    <span className="text-xs text-slate-400">
+                      {campaign.clientName}
+                    </span>
+                  )}
+                  <span className="badge-indigo">
+                    {PLATFORM_LABELS[campaign.platform]}
+                  </span>
+                  <span className="badge-gray">
                     {OBJECTIVE_LABELS[campaign.objective]}
                   </span>
                 </div>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-slate-400">
                   {rows.length} baris data
                 </span>
               </summary>
-              <div className="overflow-x-auto border-t border-gray-100">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-left text-gray-500">
+              <div className="overflow-x-auto border-t border-slate-100">
+                <table className="table-base">
+                  <thead>
                     <tr>
-                      <th className="px-4 py-2 font-medium">Tanggal</th>
-                      <th className="px-4 py-2 font-medium">Spend</th>
+                      <th>Tanggal</th>
+                      <th>Spend</th>
                       {fields.map((field) => (
-                        <th key={field} className="px-4 py-2 font-medium">
-                          {METRIC_FIELD_LABELS[field]}
-                        </th>
+                        <th key={field}>{METRIC_FIELD_LABELS[field]}</th>
                       ))}
-                      {campaign.objective === "awareness" && (
-                        <th className="px-4 py-2 font-medium">CPM</th>
-                      )}
+                      {campaign.objective === "awareness" && <th>CPM</th>}
                       {campaign.objective === "traffic" && (
                         <>
-                          <th className="px-4 py-2 font-medium">CTR</th>
-                          <th className="px-4 py-2 font-medium">CPC</th>
+                          <th>CTR</th>
+                          <th>CPC</th>
                         </>
                       )}
                       {campaign.objective === "engagement" && (
-                        <th className="px-4 py-2 font-medium">
-                          Cost/Engagement
-                        </th>
+                        <th>Cost/Engagement</th>
                       )}
-                      {campaign.objective === "leads" && (
-                        <th className="px-4 py-2 font-medium">CPL</th>
-                      )}
+                      {campaign.objective === "leads" && <th>CPL</th>}
                       {campaign.objective === "sales" && (
                         <>
-                          <th className="px-4 py-2 font-medium">CPA</th>
-                          <th className="px-4 py-2 font-medium">ROAS</th>
+                          <th>CPA</th>
+                          <th>ROAS</th>
                         </>
                       )}
-                      {campaign.objective === "meta_cpas" && (
-                        <th className="px-4 py-2 font-medium">ROAS</th>
-                      )}
+                      {campaign.objective === "meta_cpas" && <th>ROAS</th>}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody>
                     {rows.map((row, i) => (
                       <tr key={i}>
-                        <td className="whitespace-nowrap px-4 py-2 text-gray-900">
+                        <td className="whitespace-nowrap font-medium text-slate-900">
                           {row.date}
                         </td>
-                        <td className="whitespace-nowrap px-4 py-2 text-gray-600">
+                        <td className="whitespace-nowrap">
                           {formatCurrency(row.spend)}
                         </td>
                         {fields.map((field) => (
-                          <td
-                            key={field}
-                            className="whitespace-nowrap px-4 py-2 text-gray-600"
-                          >
+                          <td key={field} className="whitespace-nowrap">
                             {formatNumber(row[field], field === "frequency" ? 2 : 0)}
                           </td>
                         ))}
                         {campaign.objective === "awareness" && (
-                          <td className="whitespace-nowrap px-4 py-2 text-gray-600">
+                          <td className="whitespace-nowrap">
                             {formatCurrency(calcCPM(row.spend, row.impressions))}
                           </td>
                         )}
                         {campaign.objective === "traffic" && (
                           <>
-                            <td className="whitespace-nowrap px-4 py-2 text-gray-600">
+                            <td className="whitespace-nowrap">
                               {formatPercent(calcCTR(row.clicks, row.impressions))}
                             </td>
-                            <td className="whitespace-nowrap px-4 py-2 text-gray-600">
+                            <td className="whitespace-nowrap">
                               {formatCurrency(calcCPC(row.spend, row.clicks))}
                             </td>
                           </>
                         )}
                         {campaign.objective === "engagement" && (
-                          <td className="whitespace-nowrap px-4 py-2 text-gray-600">
+                          <td className="whitespace-nowrap">
                             {formatCurrency(
                               calcCostPerEngagement(row.spend, row.postEngagements)
                             )}
                           </td>
                         )}
                         {campaign.objective === "leads" && (
-                          <td className="whitespace-nowrap px-4 py-2 text-gray-600">
+                          <td className="whitespace-nowrap">
                             {formatCurrency(calcCPL(row.spend, row.leads))}
                           </td>
                         )}
                         {campaign.objective === "sales" && (
                           <>
-                            <td className="whitespace-nowrap px-4 py-2 text-gray-600">
+                            <td className="whitespace-nowrap">
                               {formatCurrency(calcCPA(row.spend, row.conversions))}
                             </td>
-                            <td className="whitespace-nowrap px-4 py-2 text-gray-600">
+                            <td className="whitespace-nowrap">
                               {formatRatio(calcROAS(row.revenue, row.spend))}
                             </td>
                           </>
                         )}
                         {campaign.objective === "meta_cpas" && (
-                          <td className="whitespace-nowrap px-4 py-2 text-gray-600">
+                          <td className="whitespace-nowrap">
                             {formatRatio(calcROAS(row.revenue, row.spend))}
                           </td>
                         )}
@@ -165,7 +153,7 @@ export function CampaignList({
                       <tr>
                         <td
                           colSpan={fields.length + 2}
-                          className="px-4 py-6 text-center text-gray-500"
+                          className="py-6 text-center text-slate-500"
                         >
                           Belum ada data harian.
                         </td>

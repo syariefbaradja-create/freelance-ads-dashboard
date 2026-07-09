@@ -12,9 +12,7 @@ export default async function NewCampaignPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">
-        Tambah Campaign
-      </h1>
+      <h1 className="mb-6 page-title">Tambah Campaign</h1>
       <CampaignForm clientsList={clientsList} action={createCampaign} />
     </div>
   );

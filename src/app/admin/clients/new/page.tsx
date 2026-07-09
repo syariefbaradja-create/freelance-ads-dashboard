@@ -14,32 +14,16 @@ export default function NewClientPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">
-        Tambah Klien
-      </h1>
-      <form
-        action={formAction}
-        className="space-y-4 rounded-lg border border-gray-200 bg-white p-6"
-      >
+      <h1 className="mb-6 page-title">Tambah Klien</h1>
+      <form action={formAction} className="card space-y-4 p-6">
         <div>
-          <label
-            htmlFor="name"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="name" className="field-label">
             Nama
           </label>
-          <input
-            id="name"
-            name="name"
-            required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
-          />
+          <input id="name" name="name" required className="input-field" />
         </div>
         <div>
-          <label
-            htmlFor="email"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="email" className="field-label">
             Email
           </label>
           <input
@@ -47,14 +31,11 @@ export default function NewClientPage() {
             name="email"
             type="email"
             required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+            className="input-field"
           />
         </div>
         <div>
-          <label
-            htmlFor="password"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="password" className="field-label">
             Password
           </label>
           <input
@@ -63,9 +44,9 @@ export default function NewClientPage() {
             type="password"
             required
             minLength={6}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+            className="input-field"
           />
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-slate-500">
             Minimal 6 karakter. Beri tahu klien secara manual (WA/email).
           </p>
         </div>
@@ -75,17 +56,10 @@ export default function NewClientPage() {
           </p>
         )}
         <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-          >
+          <button type="submit" disabled={pending} className="btn-primary">
             {pending ? "Menyimpan..." : "Simpan"}
           </button>
-          <Link
-            href="/admin/clients"
-            className="rounded-md px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
-          >
+          <Link href="/admin/clients" className="btn-secondary">
             Batal
           </Link>
         </div>

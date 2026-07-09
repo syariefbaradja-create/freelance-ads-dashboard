@@ -26,9 +26,7 @@ export default async function EditCampaignPage({
 
   return (
     <div className="max-w-lg">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">
-        Edit Campaign
-      </h1>
+      <h1 className="mb-6 page-title">Edit Campaign</h1>
       <CampaignForm
         clientsList={clientsList}
         action={updateCampaign.bind(null, campaign.id)}

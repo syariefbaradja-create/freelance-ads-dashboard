@@ -28,19 +28,11 @@ export default async function InputDataPage({
   if (!selectedClient) {
     return (
       <div className="max-w-lg">
-        <h1 className="mb-6 text-2xl font-semibold text-gray-900">
-          Input Data Manual
-        </h1>
-        <p className="mb-4 text-sm text-gray-500">Langkah 1 dari 3 — Pilih Client</p>
-        <form
-          method="GET"
-          className="space-y-4 rounded-lg border border-gray-200 bg-white p-6"
-        >
+        <h1 className="mb-6 page-title">Input Data Manual</h1>
+        <p className="mb-4 text-sm text-slate-500">Langkah 1 dari 3 — Pilih Client</p>
+        <form method="GET" className="card space-y-4 p-6">
           <div>
-            <label
-              htmlFor="clientId"
-              className="mb-1 block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="clientId" className="field-label">
               Client
             </label>
             <select
@@ -48,7 +40,7 @@ export default async function InputDataPage({
               name="clientId"
               required
               defaultValue=""
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+              className="select-field"
             >
               <option value="" disabled>
                 Pilih client
@@ -61,17 +53,14 @@ export default async function InputDataPage({
               ))}
             </select>
           </div>
-          <button
-            type="submit"
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-          >
+          <button type="submit" className="btn-primary">
             Lanjut
           </button>
         </form>
         {clientsList.length === 0 && (
-          <p className="mt-4 text-sm text-gray-500">
+          <p className="mt-4 text-sm text-slate-500">
             Belum ada client.{" "}
-            <Link href="/admin/clients/new" className="underline">
+            <Link href="/admin/clients/new" className="text-indigo-600 underline hover:text-indigo-500">
               Tambah client dulu
             </Link>
             .
@@ -100,28 +89,21 @@ export default async function InputDataPage({
   if (!selectedCampaign) {
     return (
       <div className="max-w-lg">
-        <h1 className="mb-6 text-2xl font-semibold text-gray-900">
-          Input Data Manual
-        </h1>
-        <p className="mb-4 text-sm text-gray-500">
+        <h1 className="mb-6 page-title">Input Data Manual</h1>
+        <p className="mb-4 text-sm text-slate-500">
           Langkah 2 dari 3 — Pilih Campaign untuk{" "}
-          <span className="font-medium text-gray-700">
+          <span className="font-medium text-slate-700">
             {selectedClient.name}
           </span>{" "}
-          · <Link href="/admin/input-data" className="underline">
+          ·{" "}
+          <Link href="/admin/input-data" className="text-indigo-600 underline hover:text-indigo-500">
             Ganti client
           </Link>
         </p>
-        <form
-          method="GET"
-          className="space-y-4 rounded-lg border border-gray-200 bg-white p-6"
-        >
+        <form method="GET" className="card space-y-4 p-6">
           <input type="hidden" name="clientId" value={selectedClient.id} />
           <div>
-            <label
-              htmlFor="campaignId"
-              className="mb-1 block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="campaignId" className="field-label">
               Campaign
             </label>
             <select
@@ -129,7 +111,7 @@ export default async function InputDataPage({
               name="campaignId"
               required
               defaultValue=""
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+              className="select-field"
             >
               <option value="" disabled>
                 Pilih campaign
@@ -142,17 +124,14 @@ export default async function InputDataPage({
               ))}
             </select>
           </div>
-          <button
-            type="submit"
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-          >
+          <button type="submit" className="btn-primary">
             Lanjut
           </button>
         </form>
         {campaignsList.length === 0 && (
-          <p className="mt-4 text-sm text-gray-500">
+          <p className="mt-4 text-sm text-slate-500">
             Client ini belum punya campaign.{" "}
-            <Link href="/admin/campaigns/new" className="underline">
+            <Link href="/admin/campaigns/new" className="text-indigo-600 underline hover:text-indigo-500">
               Tambah campaign dulu
             </Link>
             .
@@ -166,16 +145,14 @@ export default async function InputDataPage({
   // campaign's objective.
   return (
     <div className="max-w-lg">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">
-        Input Data Manual
-      </h1>
-      <p className="mb-4 text-sm text-gray-500">
+      <h1 className="mb-6 page-title">Input Data Manual</h1>
+      <p className="mb-4 text-sm text-slate-500">
         Langkah 3 dari 3 — {selectedClient.name} · {selectedCampaign.name} (
         {PLATFORM_LABELS[selectedCampaign.platform]} ·{" "}
         {OBJECTIVE_LABELS[selectedCampaign.objective]}) ·{" "}
         <Link
           href={`/admin/input-data?clientId=${selectedClient.id}`}
-          className="underline"
+          className="text-indigo-600 underline hover:text-indigo-500"
         >
           Ganti campaign
         </Link>

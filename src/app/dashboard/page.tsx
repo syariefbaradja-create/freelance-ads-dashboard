@@ -67,34 +67,37 @@ export default async function DashboardPage({
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Ringkasan Performa
-        </h1>
+        <h1 className="page-title">Ringkasan Performa</h1>
         <RefreshButton />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Total Top Up</p>
-          <p className="mt-1 text-lg font-semibold text-gray-900">
-            {formatCurrency(budget.totalTopup)}
-          </p>
+        <div className="stat-card">
+          <div className="stat-icon">💰</div>
+          <div>
+            <p className="stat-label">Total Top Up</p>
+            <p className="stat-value">{formatCurrency(budget.totalTopup)}</p>
+          </div>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Total Spend</p>
-          <p className="mt-1 text-lg font-semibold text-gray-900">
-            {formatCurrency(budget.totalSpend)}
-          </p>
+        <div className="stat-card">
+          <div className="stat-icon">📊</div>
+          <div>
+            <p className="stat-label">Total Spend</p>
+            <p className="stat-value">{formatCurrency(budget.totalSpend)}</p>
+          </div>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Sisa Budget</p>
-          <p
-            className={`mt-1 text-lg font-semibold ${
-              budget.remaining < 0 ? "text-red-600" : "text-gray-900"
-            }`}
-          >
-            {formatCurrency(budget.remaining)}
-          </p>
+        <div className="stat-card">
+          <div className="stat-icon">🏦</div>
+          <div>
+            <p className="stat-label">Sisa Budget</p>
+            <p
+              className={`mt-1 text-lg font-semibold ${
+                budget.remaining < 0 ? "text-red-600" : "text-slate-900"
+              }`}
+            >
+              {formatCurrency(budget.remaining)}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -107,26 +110,21 @@ export default async function DashboardPage({
       />
 
       {campaigns.length === 0 && (
-        <p className="text-gray-500">
+        <p className="text-slate-500">
           Belum ada campaign yang cocok dengan filter ini.
         </p>
       )}
 
       {summaryGroups.map((group) => (
         <section key={group.objective}>
-          <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          <h2 className="mb-3 section-title">
             {objectiveSummaryTitle(group.objective)}
           </h2>
           <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {group.cards.map((card) => (
-              <div
-                key={card.label}
-                className="rounded-lg border border-gray-200 bg-white p-4"
-              >
-                <p className="text-xs text-gray-500">{card.label}</p>
-                <p className="mt-1 text-lg font-semibold text-gray-900">
-                  {card.value}
-                </p>
+              <div key={card.label} className="card p-4">
+                <p className="stat-label">{card.label}</p>
+                <p className="stat-value">{card.value}</p>
               </div>
             ))}
           </div>

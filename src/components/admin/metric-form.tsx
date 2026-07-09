@@ -39,16 +39,10 @@ export function MetricForm({
   const required = new Set(OBJECTIVE_REQUIRED_FIELDS[objective]);
 
   return (
-    <form
-      action={formAction}
-      className="space-y-4 rounded-lg border border-gray-200 bg-white p-6"
-    >
+    <form action={formAction} className="card space-y-4 p-6">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label
-            htmlFor="date"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="date" className="field-label">
             Tanggal
           </label>
           <input
@@ -57,14 +51,11 @@ export function MetricForm({
             type="date"
             required
             defaultValue={defaultValues?.date}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+            className="input-field"
           />
         </div>
         <div>
-          <label
-            htmlFor="spend"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="spend" className="field-label">
             Spend
           </label>
           <input
@@ -75,7 +66,7 @@ export function MetricForm({
             min={0}
             required
             defaultValue={defaultValues?.spend}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+            className="input-field"
           />
         </div>
       </div>
@@ -83,10 +74,7 @@ export function MetricForm({
       <div className="grid grid-cols-2 gap-4">
         {fields.map((field) => (
           <div key={field}>
-            <label
-              htmlFor={field}
-              className="mb-1 block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor={field} className="field-label">
               {METRIC_FIELD_LABELS[field]}
               {required.has(field) ? "" : " (opsional)"}
             </label>
@@ -98,7 +86,7 @@ export function MetricForm({
               min={0}
               required={required.has(field)}
               defaultValue={defaultValues?.[field] ?? ""}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+              className="input-field"
             />
           </div>
         ))}
@@ -111,16 +99,12 @@ export function MetricForm({
       )}
 
       <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-        >
+        <button type="submit" disabled={pending} className="btn-primary">
           {pending ? "Menyimpan..." : "Simpan"}
         </button>
         <Link
           href={cancelHref ?? `/admin/campaigns/${campaignId}`}
-          className="rounded-md px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+          className="btn-secondary"
         >
           Batal
         </Link>

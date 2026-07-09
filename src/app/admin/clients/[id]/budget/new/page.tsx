@@ -19,9 +19,7 @@ export default async function NewTopupPage({
 
   return (
     <div className="max-w-lg">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">
-        Tambah Top Up — {client.name}
-      </h1>
+      <h1 className="mb-6 page-title">Tambah Top Up — {client.name}</h1>
       <TopupForm clientId={client.id} action={createTopup.bind(null, client.id)} />
     </div>
   );

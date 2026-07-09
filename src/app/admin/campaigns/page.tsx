@@ -34,31 +34,22 @@ export default async function CampaignsPage({
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Campaign</h1>
-        <Link
-          href="/admin/campaigns/new"
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-        >
+        <h1 className="page-title">Campaign</h1>
+        <Link href="/admin/campaigns/new" className="btn-primary">
           + Tambah Campaign
         </Link>
       </div>
 
-      <form
-        method="GET"
-        className="mb-4 flex items-end gap-3 rounded-lg border border-gray-200 bg-white p-4"
-      >
+      <form method="GET" className="card mb-4 flex items-end gap-3 p-4">
         <div>
-          <label
-            htmlFor="clientId"
-            className="mb-1 block text-xs font-medium text-gray-700"
-          >
+          <label htmlFor="clientId" className="field-label">
             Client
           </label>
           <select
             id="clientId"
             name="clientId"
             defaultValue={clientId ?? ""}
-            className="rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900"
+            className="select-field py-1.5"
           >
             <option value="">Semua</option>
             {clientsList.map((client) => (
@@ -68,48 +59,49 @@ export default async function CampaignsPage({
             ))}
           </select>
         </div>
-        <button
-          type="submit"
-          className="rounded-md bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800"
-        >
+        <button type="submit" className="btn-primary py-1.5">
           Terapkan
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-gray-500">
+      <div className="table-card">
+        <table className="table-base">
+          <thead>
             <tr>
-              <th className="px-4 py-3 font-medium">Campaign</th>
-              <th className="px-4 py-3 font-medium">Client</th>
-              <th className="px-4 py-3 font-medium">Platform</th>
-              <th className="px-4 py-3 font-medium">Objective</th>
-              <th className="px-4 py-3 font-medium" />
+              <th>Campaign</th>
+              <th>Client</th>
+              <th>Platform</th>
+              <th>Objective</th>
+              <th />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                <td className="px-4 py-3 text-gray-900">
+                <td className="font-medium text-slate-900">
                   <Link
                     href={`/admin/campaigns/${row.id}`}
-                    className="hover:underline"
+                    className="hover:text-indigo-600 hover:underline"
                   >
                     {row.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-gray-600">{row.clientName}</td>
-                <td className="px-4 py-3 text-gray-600">
-                  {PLATFORM_LABELS[row.platform]}
+                <td>{row.clientName}</td>
+                <td>
+                  <span className="badge-indigo">
+                    {PLATFORM_LABELS[row.platform]}
+                  </span>
                 </td>
-                <td className="px-4 py-3 text-gray-600">
-                  {OBJECTIVE_LABELS[row.objective]}
+                <td>
+                  <span className="badge-gray">
+                    {OBJECTIVE_LABELS[row.objective]}
+                  </span>
                 </td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-3">
+                <td>
+                  <div className="flex justify-end gap-4 text-sm">
                     <Link
                       href={`/admin/campaigns/${row.id}/edit`}
-                      className="text-gray-600 hover:text-gray-900"
+                      className="font-medium text-slate-600 hover:text-slate-900"
                     >
                       Edit
                     </Link>
@@ -123,7 +115,7 @@ export default async function CampaignsPage({
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={5} className="py-8 text-center text-slate-500">
                   {clientId
                     ? "Tidak ada campaign untuk client ini."
                     : 'Belum ada campaign. Klik "+ Tambah Campaign" untuk mulai.'}

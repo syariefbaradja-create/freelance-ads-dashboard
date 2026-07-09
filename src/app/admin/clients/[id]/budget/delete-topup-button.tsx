@@ -18,7 +18,7 @@ export function DeleteTopupButton({
         }
       }}
     >
-      <button type="submit" className="text-red-600 hover:text-red-800">
+      <button type="submit" className="font-medium text-red-600 hover:text-red-700">
         Hapus
       </button>
     </form>

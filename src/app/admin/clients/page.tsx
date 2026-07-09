@@ -50,27 +50,24 @@ export default async function ClientsPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Klien</h1>
-        <Link
-          href="/admin/clients/new"
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-        >
+        <h1 className="page-title">Klien</h1>
+        <Link href="/admin/clients/new" className="btn-primary">
           + Tambah Klien
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-gray-500">
+      <div className="table-card">
+        <table className="table-base">
+          <thead>
             <tr>
-              <th className="px-4 py-3 font-medium">Nama</th>
-              <th className="px-4 py-3 font-medium">Email</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Sisa Budget</th>
-              <th className="px-4 py-3 font-medium" />
+              <th>Nama</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Sisa Budget</th>
+              <th />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {allClients.map((client) => {
               const budget = calcClientBudget(
                 topupByClient.get(client.id) ?? 0,
@@ -78,39 +75,33 @@ export default async function ClientsPage() {
               );
               return (
                 <tr key={client.id}>
-                  <td className="px-4 py-3 text-gray-900">{client.name}</td>
-                  <td className="px-4 py-3 text-gray-600">{client.email}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={
-                        client.isActive
-                          ? "rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
-                          : "rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500"
-                      }
-                    >
+                  <td className="font-medium text-slate-900">{client.name}</td>
+                  <td>{client.email}</td>
+                  <td>
+                    <span className={client.isActive ? "badge-green" : "badge-gray"}>
                       {client.isActive ? "Aktif" : "Nonaktif"}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td>
                     <span
                       className={
-                        budget.remaining < 0 ? "text-red-600" : "text-gray-600"
+                        budget.remaining < 0 ? "font-medium text-red-600" : ""
                       }
                     >
                       {formatCurrency(budget.remaining)}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-3">
+                  <td>
+                    <div className="flex justify-end gap-4 text-sm">
                       <Link
                         href={`/admin/clients/${client.id}/budget`}
-                        className="text-gray-600 hover:text-gray-900"
+                        className="font-medium text-indigo-600 hover:text-indigo-500"
                       >
                         Budget
                       </Link>
                       <Link
                         href={`/admin/clients/${client.id}/edit`}
-                        className="text-gray-600 hover:text-gray-900"
+                        className="font-medium text-slate-600 hover:text-slate-900"
                       >
                         Edit
                       </Link>
@@ -123,7 +114,7 @@ export default async function ClientsPage() {
                       >
                         <button
                           type="submit"
-                          className="text-gray-600 hover:text-gray-900"
+                          className="font-medium text-slate-600 hover:text-slate-900"
                         >
                           {client.isActive ? "Nonaktifkan" : "Aktifkan"}
                         </button>
@@ -135,7 +126,7 @@ export default async function ClientsPage() {
             })}
             {allClients.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={5} className="py-8 text-center text-slate-500">
                   Belum ada klien. Klik &quot;+ Tambah Klien&quot; untuk mulai.
                 </td>
               </tr>

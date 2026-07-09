@@ -45,15 +45,9 @@ export function CampaignForm({
   const allowedPlatforms = OBJECTIVE_PLATFORMS[objective];
 
   return (
-    <form
-      action={formAction}
-      className="space-y-4 rounded-lg border border-gray-200 bg-white p-6"
-    >
+    <form action={formAction} className="card space-y-4 p-6">
       <div>
-        <label
-          htmlFor="clientId"
-          className="mb-1 block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="clientId" className="field-label">
           Client
         </label>
         <select
@@ -61,7 +55,7 @@ export function CampaignForm({
           name="clientId"
           required
           defaultValue={defaultValues?.clientId ?? ""}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+          className="select-field"
         >
           <option value="" disabled>
             Pilih client
@@ -76,10 +70,7 @@ export function CampaignForm({
       </div>
 
       <div>
-        <label
-          htmlFor="objective"
-          className="mb-1 block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="objective" className="field-label">
           Objective
         </label>
         <select
@@ -88,7 +79,7 @@ export function CampaignForm({
           required
           value={objective}
           onChange={(e) => setObjective(e.target.value as Objective)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+          className="select-field"
         >
           {OBJECTIVE_VALUES.map((value) => (
             <option key={value} value={value}>
@@ -99,10 +90,7 @@ export function CampaignForm({
       </div>
 
       <div>
-        <label
-          htmlFor="platform"
-          className="mb-1 block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="platform" className="field-label">
           Platform
         </label>
         <select
@@ -115,7 +103,7 @@ export function CampaignForm({
               ? defaultValues.platform
               : allowedPlatforms[0]
           }
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+          className="select-field"
         >
           {allowedPlatforms.map((value) => (
             <option key={value} value={value}>
@@ -126,10 +114,7 @@ export function CampaignForm({
       </div>
 
       <div>
-        <label
-          htmlFor="name"
-          className="mb-1 block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="name" className="field-label">
           Nama Campaign
         </label>
         <input
@@ -137,16 +122,13 @@ export function CampaignForm({
           name="name"
           required
           defaultValue={defaultValues?.name}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+          className="input-field"
         />
       </div>
 
       {objective === "meta_cpas" && (
         <div>
-          <label
-            htmlFor="catalogName"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="catalogName" className="field-label">
             Catalog/Product Set Name
           </label>
           <input
@@ -154,7 +136,7 @@ export function CampaignForm({
             name="catalogName"
             required
             defaultValue={defaultValues?.catalogName ?? ""}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900"
+            className="input-field"
           />
         </div>
       )}
@@ -166,17 +148,10 @@ export function CampaignForm({
       )}
 
       <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-        >
+        <button type="submit" disabled={pending} className="btn-primary">
           {pending ? "Menyimpan..." : "Simpan"}
         </button>
-        <Link
-          href="/admin/campaigns"
-          className="rounded-md px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
-        >
+        <Link href="/admin/campaigns" className="btn-secondary">
           Batal
         </Link>
       </div>

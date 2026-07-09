@@ -21,37 +21,37 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
-      <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
+    <div className="flex min-h-screen flex-1 flex-col bg-slate-50">
+      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
         <div className="flex items-center gap-6">
-          <Link href="/admin" className="font-semibold text-gray-900">
-            Dashboard
+          <Link href="/admin" className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
+              A
+            </div>
+            <span className="font-semibold text-slate-900">Dashboard</span>
           </Link>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/admin/clients" className="text-gray-600 hover:text-gray-900">
+          <nav className="flex gap-1 text-sm">
+            <Link href="/admin/clients" className="nav-link">
               Klien
             </Link>
-            <Link href="/admin/campaigns" className="text-gray-600 hover:text-gray-900">
+            <Link href="/admin/campaigns" className="nav-link">
               Campaign
             </Link>
-            <Link href="/admin/input-data" className="text-gray-600 hover:text-gray-900">
+            <Link href="/admin/input-data" className="nav-link">
               Input Data
             </Link>
-            <Link href="/admin/upload" className="text-gray-600 hover:text-gray-900">
+            <Link href="/admin/upload" className="nav-link">
               Upload Data
             </Link>
           </nav>
         </div>
         <form action={logout}>
-          <button
-            type="submit"
-            className="text-sm text-gray-600 hover:text-gray-900"
-          >
+          <button type="submit" className="nav-link">
             Keluar
           </button>
         </form>
       </header>
-      <main className="flex-1 p-6">{children}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 p-6">{children}</main>
     </div>
   );
 }

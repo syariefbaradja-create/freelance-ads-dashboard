@@ -65,28 +65,31 @@ export default async function AdminHomePage({
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-semibold text-gray-900">
-        Selamat datang, Admin
-      </h1>
+      <h1 className="page-title">Selamat datang, Admin</h1>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Klien Aktif</p>
-          <p className="mt-1 text-lg font-semibold text-gray-900">
-            {overview.activeClientCount} / {overview.totalClients}
-          </p>
+        <div className="stat-card">
+          <div className="stat-icon">👥</div>
+          <div>
+            <p className="stat-label">Klien Aktif</p>
+            <p className="stat-value">
+              {overview.activeClientCount} / {overview.totalClients}
+            </p>
+          </div>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Campaign (sesuai filter)</p>
-          <p className="mt-1 text-lg font-semibold text-gray-900">
-            {formatNumber(overview.totalCampaigns)}
-          </p>
+        <div className="stat-card">
+          <div className="stat-icon">📁</div>
+          <div>
+            <p className="stat-label">Campaign (sesuai filter)</p>
+            <p className="stat-value">{formatNumber(overview.totalCampaigns)}</p>
+          </div>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Total Spend (sesuai filter)</p>
-          <p className="mt-1 text-lg font-semibold text-gray-900">
-            {formatCurrency(overview.totalSpend)}
-          </p>
+        <div className="stat-card">
+          <div className="stat-icon">📊</div>
+          <div>
+            <p className="stat-label">Total Spend (sesuai filter)</p>
+            <p className="stat-value">{formatCurrency(overview.totalSpend)}</p>
+          </div>
         </div>
       </div>
 
@@ -101,71 +104,61 @@ export default async function AdminHomePage({
       />
 
       {campaigns.length === 0 && (
-        <p className="text-gray-500">
+        <p className="text-slate-500">
           Belum ada campaign yang cocok dengan filter ini.
         </p>
       )}
 
       {budgetByClient.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          <h2 className="mb-3 section-title">
             Budget per Klien (sepanjang waktu)
           </h2>
-          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-left text-gray-500">
+          <div className="table-card">
+            <table className="table-base">
+              <thead>
                 <tr>
-                  <th className="px-4 py-3 font-medium">Klien</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Total Top Up</th>
-                  <th className="px-4 py-3 font-medium">Total Spend</th>
-                  <th className="px-4 py-3 font-medium">Sisa Budget</th>
-                  <th className="px-4 py-3 font-medium" />
+                  <th>Klien</th>
+                  <th>Status</th>
+                  <th>Total Top Up</th>
+                  <th>Total Spend</th>
+                  <th>Sisa Budget</th>
+                  <th />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {budgetByClient.map((client) => (
                   <tr key={client.id}>
-                    <td className="px-4 py-3 text-gray-900">
+                    <td className="font-medium text-slate-900">
                       <Link
                         href={`/admin/campaigns?clientId=${client.id}`}
-                        className="hover:underline"
+                        className="hover:text-indigo-600 hover:underline"
                       >
                         {client.name}
                       </Link>
                     </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={
-                          client.isActive
-                            ? "rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
-                            : "rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500"
-                        }
-                      >
+                    <td>
+                      <span className={client.isActive ? "badge-green" : "badge-gray"}>
                         {client.isActive ? "Aktif" : "Nonaktif"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {formatCurrency(client.totalTopup)}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {formatCurrency(client.totalSpend)}
-                    </td>
-                    <td className="px-4 py-3">
+                    <td>{formatCurrency(client.totalTopup)}</td>
+                    <td>{formatCurrency(client.totalSpend)}</td>
+                    <td>
                       <span
                         className={
                           client.remaining < 0
                             ? "font-medium text-red-600"
-                            : "text-gray-600"
+                            : "text-slate-700"
                         }
                       >
                         {formatCurrency(client.remaining)}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <Link
                         href={`/admin/clients/${client.id}/budget`}
-                        className="text-gray-600 hover:text-gray-900"
+                        className="font-medium text-indigo-600 hover:text-indigo-500"
                       >
                         Kelola
                       </Link>
@@ -180,19 +173,14 @@ export default async function AdminHomePage({
 
       {summaryGroups.map((group) => (
         <section key={group.objective}>
-          <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          <h2 className="mb-3 section-title">
             {objectiveSummaryTitle(group.objective)}
           </h2>
           <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {group.cards.map((card) => (
-              <div
-                key={card.label}
-                className="rounded-lg border border-gray-200 bg-white p-4"
-              >
-                <p className="text-xs text-gray-500">{card.label}</p>
-                <p className="mt-1 text-lg font-semibold text-gray-900">
-                  {card.value}
-                </p>
+              <div key={card.label} className="card p-4">
+                <p className="stat-label">{card.label}</p>
+                <p className="stat-value">{card.value}</p>
               </div>
             ))}
           </div>

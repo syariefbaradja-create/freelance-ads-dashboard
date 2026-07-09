@@ -34,21 +34,23 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
-      <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-        <span className="font-semibold text-gray-900">
-          Dashboard Performa Ads
-        </span>
+    <div className="flex min-h-screen flex-1 flex-col bg-slate-50">
+      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
+            A
+          </div>
+          <span className="font-semibold text-slate-900">
+            Dashboard Performa Ads
+          </span>
+        </div>
         <form action={logout}>
-          <button
-            type="submit"
-            className="text-sm text-gray-600 hover:text-gray-900"
-          >
+          <button type="submit" className="nav-link">
             Keluar
           </button>
         </form>
       </header>
-      <main className="flex-1 p-6">{children}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 p-6">{children}</main>
     </div>
   );
 }

@@ -52,76 +52,76 @@ export default async function ClientBudgetPage({
   return (
     <div>
       <div className="mb-6">
-        <p className="text-sm text-gray-500">
-          <Link href="/admin/clients" className="hover:underline">
+        <p className="text-sm text-slate-500">
+          <Link href="/admin/clients" className="hover:text-indigo-600 hover:underline">
             Klien
           </Link>{" "}
           / {client.name}
         </p>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Budget — {client.name}
-        </h1>
+        <h1 className="page-title">Budget — {client.name}</h1>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Total Top Up</p>
-          <p className="mt-1 text-lg font-semibold text-gray-900">
-            {formatCurrency(budget.totalTopup)}
-          </p>
+        <div className="stat-card">
+          <div className="stat-icon">💰</div>
+          <div>
+            <p className="stat-label">Total Top Up</p>
+            <p className="stat-value">{formatCurrency(budget.totalTopup)}</p>
+          </div>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Total Spend</p>
-          <p className="mt-1 text-lg font-semibold text-gray-900">
-            {formatCurrency(budget.totalSpend)}
-          </p>
+        <div className="stat-card">
+          <div className="stat-icon">📊</div>
+          <div>
+            <p className="stat-label">Total Spend</p>
+            <p className="stat-value">{formatCurrency(budget.totalSpend)}</p>
+          </div>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs text-gray-500">Sisa Budget</p>
-          <p
-            className={`mt-1 text-lg font-semibold ${
-              budget.remaining < 0 ? "text-red-600" : "text-gray-900"
-            }`}
-          >
-            {formatCurrency(budget.remaining)}
-          </p>
+        <div className="stat-card">
+          <div className="stat-icon">🏦</div>
+          <div>
+            <p className="stat-label">Sisa Budget</p>
+            <p
+              className={`mt-1 text-lg font-semibold ${
+                budget.remaining < 0 ? "text-red-600" : "text-slate-900"
+              }`}
+            >
+              {formatCurrency(budget.remaining)}
+            </p>
+          </div>
         </div>
       </div>
 
       <div className="mb-4 flex justify-end">
-        <Link
-          href={`/admin/clients/${client.id}/budget/new`}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-        >
+        <Link href={`/admin/clients/${client.id}/budget/new`} className="btn-primary">
           + Tambah Top Up
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-gray-500">
+      <div className="table-card">
+        <table className="table-base">
+          <thead>
             <tr>
-              <th className="px-4 py-3 font-medium">Tanggal</th>
-              <th className="px-4 py-3 font-medium">Jumlah</th>
-              <th className="px-4 py-3 font-medium">Catatan</th>
-              <th className="px-4 py-3 font-medium" />
+              <th>Tanggal</th>
+              <th>Jumlah</th>
+              <th>Catatan</th>
+              <th />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {topupRows.map((topup) => (
               <tr key={topup.id}>
-                <td className="whitespace-nowrap px-4 py-3 text-gray-900">
+                <td className="whitespace-nowrap font-medium text-slate-900">
                   {topup.date}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-gray-600">
+                <td className="whitespace-nowrap">
                   {formatCurrency(Number(topup.amount))}
                 </td>
-                <td className="px-4 py-3 text-gray-600">{topup.note}</td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-3">
+                <td>{topup.note}</td>
+                <td>
+                  <div className="flex justify-end gap-4 text-sm">
                     <Link
                       href={`/admin/clients/${client.id}/budget/${topup.id}/edit`}
-                      className="text-gray-600 hover:text-gray-900"
+                      className="font-medium text-indigo-600 hover:text-indigo-500"
                     >
                       Edit
                     </Link>
@@ -135,7 +135,7 @@ export default async function ClientBudgetPage({
             ))}
             {topupRows.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={4} className="py-8 text-center text-slate-500">
                   Belum ada top up. Klik &quot;+ Tambah Top Up&quot; untuk
                   mulai.
                 </td>
