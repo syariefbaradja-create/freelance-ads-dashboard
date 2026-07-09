@@ -1,7 +1,7 @@
 import type { CampaignRow } from "./campaign-row";
-import type { Objective } from "./objective";
+import { OBJECTIVE_METRIC_FIELDS, type Objective } from "./objective";
 import { aggregateMetrics, buildSummaryCards, type MetricRow, type SummaryCard } from "./summary";
-import { buildTrend, OBJECTIVE_PRIMARY_FIELD, type TrendPoint } from "./trend";
+import { buildTrend, type TrendPoint } from "./trend";
 
 export type SummaryGroup = {
   objective: Objective;
@@ -28,7 +28,7 @@ export function buildSummaryGroups(
     return {
       objective,
       cards: buildSummaryCards(objective, aggregateMetrics(rows)),
-      trend: buildTrend(rows, granularity, OBJECTIVE_PRIMARY_FIELD[objective]),
+      trend: buildTrend(rows, granularity, OBJECTIVE_METRIC_FIELDS[objective]),
     };
   });
 }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  METRIC_FIELD_LABELS,
+  OBJECTIVE_METRIC_FIELDS,
   OBJECTIVE_VALUES,
   PLATFORM_VALUES,
   type Objective,
@@ -187,9 +187,8 @@ export default async function AdminHomePage({
           </div>
           <TrendChart
             data={group.trend}
-            primaryLabel={
-              METRIC_FIELD_LABELS[OBJECTIVE_PRIMARY_FIELD[group.objective]]
-            }
+            fields={OBJECTIVE_METRIC_FIELDS[group.objective]}
+            defaultField={OBJECTIVE_PRIMARY_FIELD[group.objective]}
           />
         </section>
       ))}

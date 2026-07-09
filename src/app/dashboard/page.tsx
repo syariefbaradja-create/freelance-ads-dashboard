@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import {
-  METRIC_FIELD_LABELS,
+  OBJECTIVE_METRIC_FIELDS,
   OBJECTIVE_VALUES,
   PLATFORM_VALUES,
   type Objective,
@@ -131,9 +131,8 @@ export default async function DashboardPage({
           </div>
           <TrendChart
             data={group.trend}
-            primaryLabel={
-              METRIC_FIELD_LABELS[OBJECTIVE_PRIMARY_FIELD[group.objective]]
-            }
+            fields={OBJECTIVE_METRIC_FIELDS[group.objective]}
+            defaultField={OBJECTIVE_PRIMARY_FIELD[group.objective]}
           />
         </section>
       ))}
