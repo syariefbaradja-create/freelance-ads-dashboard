@@ -1,3 +1,5 @@
+"use client";
+
 import {
   calcCPA,
   calcCPC,
@@ -23,15 +25,23 @@ import type { CampaignRow } from "@/lib/metrics/campaign-row";
 export function CampaignList({
   campaigns,
   metricsByCampaign,
+  selectedIds,
+  onToggle,
 }: {
   campaigns: CampaignRow[];
   metricsByCampaign: Map<string, MetricRow[]>;
+  selectedIds: Set<string>;
+  onToggle: (campaignId: string) => void;
 }) {
   if (campaigns.length === 0) return null;
 
   return (
     <section>
-      <h2 className="mb-3 section-title">Detail Campaign</h2>
+      <h2 className="mb-1 section-title">Detail Campaign</h2>
+      <p className="mb-3 text-xs text-slate-500">
+        Centang/hilangkan campaign untuk mengatur mana yang ikut dihitung di
+        card ringkasan dan grafik di atas.
+      </p>
       <div className="space-y-3">
         {campaigns.map((campaign) => {
           const rows = (metricsByCampaign.get(campaign.id) ?? [])
@@ -43,6 +53,14 @@ export function CampaignList({
             <details key={campaign.id} className="table-card">
               <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 marker:content-none">
                 <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(campaign.id)}
+                    onChange={() => onToggle(campaign.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={`Sertakan ${campaign.name} di ringkasan`}
+                    className="h-4 w-4 shrink-0 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/40"
+                  />
                   <span className="font-medium text-slate-900">
                     {campaign.name}
                   </span>

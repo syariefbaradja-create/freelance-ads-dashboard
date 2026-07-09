@@ -1,17 +1,12 @@
 import Link from "next/link";
 import {
-  OBJECTIVE_METRIC_FIELDS,
   OBJECTIVE_VALUES,
   PLATFORM_VALUES,
   type Objective,
   type Platform,
 } from "@/lib/metrics/objective";
 import { formatCurrency, formatNumber } from "@/lib/metrics/derived";
-import { objectiveSummaryTitle } from "@/lib/metrics/summary";
-import { buildSummaryGroups } from "@/lib/metrics/build-summary-groups";
-import { OBJECTIVE_PRIMARY_FIELD } from "@/lib/metrics/trend";
-import { TrendChart } from "@/components/dashboard/trend-chart";
-import { CampaignList } from "@/components/dashboard/campaign-list";
+import { PerformanceSections } from "@/components/dashboard/performance-sections";
 import { getAdminDashboardData } from "./data";
 import { OverviewFilterBar } from "./overview-filter-bar";
 
@@ -56,12 +51,6 @@ export default async function AdminHomePage({
       dateFrom,
       dateTo,
     });
-
-  const summaryGroups = buildSummaryGroups(
-    campaigns,
-    metricsByCampaign,
-    granularity
-  );
 
   return (
     <div className="space-y-8">
@@ -172,28 +161,11 @@ export default async function AdminHomePage({
         </section>
       )}
 
-      {summaryGroups.map((group) => (
-        <section key={group.objective}>
-          <h2 className="mb-3 section-title">
-            {objectiveSummaryTitle(group.objective)}
-          </h2>
-          <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {group.cards.map((card) => (
-              <div key={card.label} className="card p-4">
-                <p className="stat-label">{card.label}</p>
-                <p className="stat-value">{card.value}</p>
-              </div>
-            ))}
-          </div>
-          <TrendChart
-            data={group.trend}
-            fields={OBJECTIVE_METRIC_FIELDS[group.objective]}
-            defaultField={OBJECTIVE_PRIMARY_FIELD[group.objective]}
-          />
-        </section>
-      ))}
-
-      <CampaignList campaigns={campaigns} metricsByCampaign={metricsByCampaign} />
+      <PerformanceSections
+        campaigns={campaigns}
+        metricsByCampaign={Array.from(metricsByCampaign.entries())}
+        granularity={granularity}
+      />
     </div>
   );
 }
