@@ -25,7 +25,7 @@ export default async function EditCampaignPage({
   }
 
   return (
-    <div className="max-w-lg">
+    <div>
       <h1 className="mb-6 page-title">Edit Campaign</h1>
       <CampaignForm
         clientsList={clientsList}

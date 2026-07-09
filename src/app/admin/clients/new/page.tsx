@@ -13,7 +13,7 @@ export default function NewClientPage() {
   );
 
   return (
-    <div className="max-w-lg">
+    <div>
       <h1 className="mb-6 page-title">Tambah Klien</h1>
       <form action={formAction} className="card space-y-4 p-6">
         <div>
@@ -33,6 +33,20 @@ export default function NewClientPage() {
             required
             className="input-field"
           />
+        </div>
+        <div>
+          <label htmlFor="username" className="field-label">
+            Username (opsional)
+          </label>
+          <input
+            id="username"
+            name="username"
+            placeholder="mis. klinik_sehat"
+            className="input-field"
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            Kalau diisi, klien bisa login pakai username ini selain email.
+          </p>
         </div>
         <div>
           <label htmlFor="password" className="field-label">

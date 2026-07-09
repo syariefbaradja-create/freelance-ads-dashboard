@@ -11,7 +11,7 @@ export default async function NewCampaignPage() {
     .orderBy(asc(clients.name));
 
   return (
-    <div className="max-w-lg">
+    <div>
       <h1 className="mb-6 page-title">Tambah Campaign</h1>
       <CampaignForm clientsList={clientsList} action={createCampaign} />
     </div>

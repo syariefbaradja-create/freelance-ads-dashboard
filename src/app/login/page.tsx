@@ -14,7 +14,7 @@ export default function LoginPage() {
       <div className="relative w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-lg font-bold text-white shadow-sm">
-            A
+            S
           </div>
           <h1 className="text-xl font-semibold text-slate-900">
             Masuk ke Dashboard Ads
@@ -27,13 +27,13 @@ export default function LoginPage() {
           <form action={formAction} className="space-y-4">
             <div>
               <label htmlFor="email" className="field-label">
-                Email
+                Email/Username
               </label>
               <input
                 id="email"
                 name="email"
-                type="email"
-                autoComplete="email"
+                type="text"
+                autoComplete="username"
                 required
                 className="input-field"
               />

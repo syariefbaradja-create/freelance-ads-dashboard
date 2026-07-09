@@ -22,7 +22,7 @@ export default async function EditMetricPage({
   }
 
   return (
-    <div className="max-w-lg">
+    <div>
       <h1 className="mb-6 page-title">Edit Data Harian</h1>
       <MetricForm
         campaignId={campaign.id}

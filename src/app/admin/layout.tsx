@@ -26,7 +26,7 @@ export default async function AdminLayout({
         <div className="flex min-w-0 items-center gap-4 sm:gap-6">
           <Link href="/admin" className="flex shrink-0 items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
-              A
+              S
             </div>
             <span className="hidden font-semibold text-slate-900 sm:inline">
               Dashboard

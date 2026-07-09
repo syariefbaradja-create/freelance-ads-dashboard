@@ -52,6 +52,11 @@ export const admins = pgTable(
       .references(() => authUsers.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     email: text("email").notNull().unique(),
+    // Optional alternate login identifier — nullable so existing accounts
+    // stay valid; uniqueness across both admins and clients is enforced at
+    // the application layer (see src/lib/auth/resolve-username.ts) since a
+    // cross-table SQL unique constraint isn't practical here.
+    username: text("username").unique(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -74,6 +79,9 @@ export const clients = pgTable(
       .references(() => authUsers.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     email: text("email").notNull().unique(),
+    // Optional alternate login identifier — see admins.username above for
+    // why uniqueness is enforced at the application layer, not via SQL.
+    username: text("username").unique(),
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

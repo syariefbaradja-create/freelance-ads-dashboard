@@ -38,7 +38,7 @@ export default async function DashboardLayout({
       <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
-            A
+            S
           </div>
           <span className="font-semibold text-slate-900">
             Dashboard Performa Ads

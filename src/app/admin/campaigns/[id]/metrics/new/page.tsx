@@ -21,7 +21,7 @@ export default async function NewMetricPage({
   }
 
   return (
-    <div className="max-w-lg">
+    <div>
       <h1 className="mb-6 page-title">Tambah Data Harian</h1>
       <MetricForm
         campaignId={campaign.id}

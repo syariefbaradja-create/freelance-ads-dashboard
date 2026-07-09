@@ -45,6 +45,21 @@ export function EditClientForm({
           className="input-field"
         />
       </div>
+      <div>
+        <label htmlFor="username" className="field-label">
+          Username (opsional)
+        </label>
+        <input
+          id="username"
+          name="username"
+          defaultValue={client.username ?? ""}
+          placeholder="mis. klinik_sehat"
+          className="input-field"
+        />
+        <p className="mt-1 text-xs text-slate-500">
+          Kalau diisi, klien bisa login pakai username ini selain email.
+        </p>
+      </div>
       {state.error && (
         <p className="text-sm text-red-600" role="alert">
           {state.error}

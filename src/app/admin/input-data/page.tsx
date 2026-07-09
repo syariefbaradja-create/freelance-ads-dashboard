@@ -27,7 +27,7 @@ export default async function InputDataPage({
   // Step 1: pick a client.
   if (!selectedClient) {
     return (
-      <div className="max-w-lg">
+      <div>
         <h1 className="mb-6 page-title">Input Data Manual</h1>
         <p className="mb-4 text-sm text-slate-500">Langkah 1 dari 3 — Pilih Client</p>
         <form method="GET" className="card space-y-4 p-6">
@@ -88,7 +88,7 @@ export default async function InputDataPage({
   // Step 2: pick a campaign belonging to that client.
   if (!selectedCampaign) {
     return (
-      <div className="max-w-lg">
+      <div>
         <h1 className="mb-6 page-title">Input Data Manual</h1>
         <p className="mb-4 text-sm text-slate-500">
           Langkah 2 dari 3 — Pilih Campaign untuk{" "}

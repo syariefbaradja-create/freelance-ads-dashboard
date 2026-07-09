@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getRole } from "@/lib/auth/role";
+import { resolveUsernameToEmail } from "@/lib/auth/resolve-username";
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  identifier: z.string().min(1, "Email/Username wajib diisi"),
   password: z.string().min(1),
 });
 
@@ -17,7 +18,7 @@ export async function login(
   formData: FormData
 ): Promise<LoginState> {
   const parsed = loginSchema.safeParse({
-    email: formData.get("email"),
+    identifier: formData.get("email"),
     password: formData.get("password"),
   });
 
@@ -25,8 +26,22 @@ export async function login(
     return { error: "Email atau password tidak valid." };
   }
 
+  // Supabase Auth only ever authenticates by email — if the identifier
+  // isn't shaped like one, resolve it as a username first.
+  let email = parsed.data.identifier;
+  if (!email.includes("@")) {
+    const resolved = await resolveUsernameToEmail(email);
+    if (!resolved) {
+      return { error: "Email atau password salah." };
+    }
+    email = resolved;
+  }
+
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password: parsed.data.password,
+  });
 
   if (error) {
     return { error: "Email atau password salah." };

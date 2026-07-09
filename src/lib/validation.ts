@@ -11,6 +11,12 @@ import {
 export const clientSchema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),
   email: z.string().email("Email tidak valid"),
+  // Optional alternate login identifier — kept simple (no "@") so the login
+  // form can tell email and username apart just by checking for "@".
+  username: z.string().optional().refine(
+    (val) => !val || /^[a-zA-Z0-9._-]{3,}$/.test(val),
+    "Username minimal 3 karakter, hanya huruf/angka/titik/underscore/strip"
+  ),
 });
 
 export const createClientSchema = clientSchema.extend({

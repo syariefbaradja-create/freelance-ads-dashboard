@@ -17,7 +17,7 @@ export default async function EditClientPage({
   }
 
   return (
-    <div className="max-w-lg">
+    <div>
       <h1 className="mb-6 page-title">Edit Klien</h1>
       <EditClientForm client={client} />
     </div>

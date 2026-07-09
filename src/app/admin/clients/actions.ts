@@ -7,8 +7,15 @@ import { db } from "@/db";
 import { clients } from "@/db/schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { clientSchema, createClientSchema } from "@/lib/validation";
+import { isUsernameTaken } from "@/lib/auth/resolve-username";
 
 export type ClientFormState = { error?: string };
+
+function readUsername(formData: FormData) {
+  const raw = formData.get("username");
+  const trimmed = typeof raw === "string" ? raw.trim() : "";
+  return trimmed === "" ? undefined : trimmed;
+}
 
 export async function createClientAccount(
   _prevState: ClientFormState,
@@ -18,10 +25,15 @@ export async function createClientAccount(
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
+    username: readUsername(formData),
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid." };
+  }
+
+  if (parsed.data.username && (await isUsernameTaken(parsed.data.username))) {
+    return { error: "Username sudah dipakai, pilih yang lain." };
   }
 
   const supabase = createAdminClient();
@@ -40,6 +52,7 @@ export async function createClientAccount(
     id: data.user.id,
     name: parsed.data.name,
     email: parsed.data.email,
+    username: parsed.data.username ?? null,
   });
 
   revalidatePath("/admin/clients");
@@ -54,15 +67,27 @@ export async function updateClientAccount(
   const parsed = clientSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
+    username: readUsername(formData),
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Data tidak valid." };
   }
 
+  if (
+    parsed.data.username &&
+    (await isUsernameTaken(parsed.data.username, { table: "clients", id }))
+  ) {
+    return { error: "Username sudah dipakai, pilih yang lain." };
+  }
+
   await db
     .update(clients)
-    .set({ name: parsed.data.name, email: parsed.data.email })
+    .set({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      username: parsed.data.username ?? null,
+    })
     .where(eq(clients.id, id));
 
   // Keep Supabase Auth's email in sync so login still works afterwards.

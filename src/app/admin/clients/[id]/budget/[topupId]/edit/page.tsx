@@ -22,7 +22,7 @@ export default async function EditTopupPage({
   }
 
   return (
-    <div className="max-w-lg">
+    <div>
       <h1 className="mb-6 page-title">Edit Top Up — {client.name}</h1>
       <TopupForm
         clientId={client.id}
