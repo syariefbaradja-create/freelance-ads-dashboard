@@ -41,6 +41,9 @@ export default async function EditMetricPage({
           conversions: metric.conversions,
           purchases: metric.purchases,
           revenue: metric.revenue,
+          viewProductPage: metric.viewProductPage,
+          addToCart: metric.addToCart,
+          addToCartValue: metric.addToCartValue,
         }}
       />
     </div>

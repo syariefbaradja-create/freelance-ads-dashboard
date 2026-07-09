@@ -21,6 +21,9 @@ type MetricRowRaw = {
   conversions: string | null;
   purchases: string | null;
   revenue: string | null;
+  view_product_page: string | null;
+  add_to_cart: string | null;
+  add_to_cart_value: string | null;
 };
 
 function toNumber(value: string | null): number | null {
@@ -43,6 +46,9 @@ function toMetricRow(raw: MetricRowRaw): MetricRow {
     conversions: toNumber(raw.conversions),
     purchases: toNumber(raw.purchases),
     revenue: toNumber(raw.revenue),
+    viewProductPage: toNumber(raw.view_product_page),
+    addToCart: toNumber(raw.add_to_cart),
+    addToCartValue: toNumber(raw.add_to_cart_value),
   };
 }
 
@@ -88,7 +94,7 @@ export async function getDashboardData(
     let metricsQuery = supabase
       .from("metrics")
       .select(
-        "id, campaign_id, date, spend, impressions, reach, frequency, clicks, post_engagements, video_views, leads, conversions, purchases, revenue"
+        "id, campaign_id, date, spend, impressions, reach, frequency, clicks, post_engagements, video_views, leads, conversions, purchases, revenue, view_product_page, add_to_cart, add_to_cart_value"
       )
       .in("campaign_id", campaignIds)
       .order("date", { ascending: true });

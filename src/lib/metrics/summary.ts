@@ -1,4 +1,7 @@
 import {
+  calcAddToCartRate,
+  calcCartToPurchaseRate,
+  calcCostPerAddToCart,
   calcCPA,
   calcCPC,
   calcCPL,
@@ -26,6 +29,9 @@ export type MetricRow = {
   conversions: number | null;
   purchases: number | null;
   revenue: number | null;
+  viewProductPage: number | null;
+  addToCart: number | null;
+  addToCartValue: number | null;
 };
 
 export type MetricTotals = {
@@ -40,6 +46,9 @@ export type MetricTotals = {
   conversions: number;
   purchases: number;
   revenue: number;
+  viewProductPage: number;
+  addToCart: number;
+  addToCartValue: number;
   rowCount: number;
 };
 
@@ -56,6 +65,9 @@ export function aggregateMetrics(rows: MetricRow[]): MetricTotals {
     conversions: 0,
     purchases: 0,
     revenue: 0,
+    viewProductPage: 0,
+    addToCart: 0,
+    addToCartValue: 0,
     rowCount: rows.length,
   };
 
@@ -73,6 +85,9 @@ export function aggregateMetrics(rows: MetricRow[]): MetricTotals {
     totals.conversions += row.conversions ?? 0;
     totals.purchases += row.purchases ?? 0;
     totals.revenue += row.revenue ?? 0;
+    totals.viewProductPage += row.viewProductPage ?? 0;
+    totals.addToCart += row.addToCart ?? 0;
+    totals.addToCartValue += row.addToCartValue ?? 0;
     if (row.frequency != null) {
       frequencySum += row.frequency;
       frequencyCount += 1;
@@ -90,6 +105,24 @@ export function buildSummaryCards(
   objective: Objective,
   totals: MetricTotals
 ): SummaryCard[] {
+  // CPM/CTR/CPC only need spend, impressions, and clicks — always
+  // meaningful (and shown) regardless of objective. Rows that don't
+  // collect clicks yet just show "—" for CTR/CPC until they do.
+  const reachEfficiencyCards: SummaryCard[] = [
+    {
+      label: "CPM",
+      value: formatCurrency(calcCPM(totals.spend, totals.impressions)),
+    },
+    {
+      label: "CTR",
+      value: formatPercent(calcCTR(totals.clicks, totals.impressions)),
+    },
+    {
+      label: "CPC",
+      value: formatCurrency(calcCPC(totals.spend, totals.clicks)),
+    },
+  ];
+
   switch (objective) {
     case "awareness":
       return [
@@ -97,24 +130,14 @@ export function buildSummaryCards(
         { label: "Impressions", value: formatNumber(totals.impressions) },
         { label: "Reach", value: formatNumber(totals.reach) },
         { label: "Frequency", value: formatRatio(totals.frequency) },
-        {
-          label: "CPM",
-          value: formatCurrency(calcCPM(totals.spend, totals.impressions)),
-        },
+        ...reachEfficiencyCards,
       ];
     case "traffic":
       return [
         { label: "Spend", value: formatCurrency(totals.spend) },
         { label: "Impressions", value: formatNumber(totals.impressions) },
         { label: "Clicks", value: formatNumber(totals.clicks) },
-        {
-          label: "CTR",
-          value: formatPercent(calcCTR(totals.clicks, totals.impressions)),
-        },
-        {
-          label: "CPC",
-          value: formatCurrency(calcCPC(totals.spend, totals.clicks)),
-        },
+        ...reachEfficiencyCards,
       ];
     case "engagement":
       return [
@@ -131,6 +154,7 @@ export function buildSummaryCards(
             calcCostPerEngagement(totals.spend, totals.postEngagements)
           ),
         },
+        ...reachEfficiencyCards,
       ];
     case "leads":
       return [
@@ -142,6 +166,7 @@ export function buildSummaryCards(
           label: "CPL",
           value: formatCurrency(calcCPL(totals.spend, totals.leads)),
         },
+        ...reachEfficiencyCards,
       ];
     case "sales":
       return [
@@ -158,18 +183,51 @@ export function buildSummaryCards(
           label: "ROAS",
           value: formatRatio(calcROAS(totals.revenue, totals.spend)),
         },
+        ...reachEfficiencyCards,
       ];
     case "meta_cpas":
       return [
         { label: "Spend", value: formatCurrency(totals.spend) },
         { label: "Impressions", value: formatNumber(totals.impressions) },
         { label: "Clicks", value: formatNumber(totals.clicks) },
+        {
+          label: "View Product Page",
+          value: formatNumber(totals.viewProductPage),
+        },
+        { label: "Add to Cart", value: formatNumber(totals.addToCart) },
+        {
+          label: "Add to Cart Value",
+          value: formatCurrency(totals.addToCartValue),
+        },
+        {
+          label: "Cost/Add to Cart",
+          value: formatCurrency(
+            calcCostPerAddToCart(totals.spend, totals.addToCart)
+          ),
+        },
+        {
+          label: "Add to Cart Rate",
+          value: formatPercent(
+            calcAddToCartRate(totals.addToCart, totals.viewProductPage)
+          ),
+        },
         { label: "Purchases", value: formatNumber(totals.purchases) },
+        {
+          label: "Conversion Rate",
+          value: formatPercent(
+            calcCartToPurchaseRate(totals.purchases, totals.addToCart)
+          ),
+        },
+        {
+          label: "Cost/Purchase",
+          value: formatCurrency(calcCPA(totals.spend, totals.purchases)),
+        },
         { label: "Revenue", value: formatCurrency(totals.revenue) },
         {
           label: "ROAS",
           value: formatRatio(calcROAS(totals.revenue, totals.spend)),
         },
+        ...reachEfficiencyCards,
       ];
   }
 }

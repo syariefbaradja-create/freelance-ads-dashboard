@@ -24,6 +24,9 @@ function readMetricFormData(formData: FormData) {
     conversions: optionalNumber(formData.get("conversions")),
     purchases: optionalNumber(formData.get("purchases")),
     revenue: optionalNumber(formData.get("revenue")),
+    viewProductPage: optionalNumber(formData.get("viewProductPage")),
+    addToCart: optionalNumber(formData.get("addToCart")),
+    addToCartValue: optionalNumber(formData.get("addToCartValue")),
   };
 }
 
@@ -74,6 +77,9 @@ export async function createMetric(
     conversions: parsed.data.conversions?.toString(),
     purchases: parsed.data.purchases?.toString(),
     revenue: parsed.data.revenue?.toString(),
+    viewProductPage: parsed.data.viewProductPage?.toString(),
+    addToCart: parsed.data.addToCart?.toString(),
+    addToCartValue: parsed.data.addToCartValue?.toString(),
     createdBy: user.id,
   });
 
@@ -119,6 +125,9 @@ export async function updateMetric(
       conversions: parsed.data.conversions?.toString(),
       purchases: parsed.data.purchases?.toString(),
       revenue: parsed.data.revenue?.toString(),
+      viewProductPage: parsed.data.viewProductPage?.toString(),
+      addToCart: parsed.data.addToCart?.toString(),
+      addToCartValue: parsed.data.addToCartValue?.toString(),
       updatedAt: new Date(),
     })
     .where(eq(metrics.id, metricId));

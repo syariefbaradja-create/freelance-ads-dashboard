@@ -68,6 +68,9 @@ const metricBaseSchema = z.object({
   conversions: numericField,
   purchases: numericField,
   revenue: numericField,
+  viewProductPage: numericField,
+  addToCart: numericField,
+  addToCartValue: numericField,
 });
 
 export type MetricInput = z.infer<typeof metricBaseSchema>;

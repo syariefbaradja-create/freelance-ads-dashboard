@@ -41,6 +41,27 @@ export function calcROAS(revenue: number | null, spend: number | null) {
   return ratio(revenue, spend);
 }
 
+// Meta CPAS funnel: View Product Page -> Add to Cart -> Purchase.
+export function calcCostPerAddToCart(spend: number | null, addToCart: number | null) {
+  return ratio(spend, addToCart);
+}
+
+export function calcAddToCartRate(
+  addToCart: number | null,
+  viewProductPage: number | null
+) {
+  const r = ratio(addToCart, viewProductPage);
+  return r == null ? null : r * 100;
+}
+
+export function calcCartToPurchaseRate(
+  purchases: number | null,
+  addToCart: number | null
+) {
+  const r = ratio(purchases, addToCart);
+  return r == null ? null : r * 100;
+}
+
 /** Formats a number for display, or an em dash when there's nothing to show. */
 export function formatNumber(value: number | null | undefined, decimals = 0) {
   if (value == null || Number.isNaN(value)) return "—";

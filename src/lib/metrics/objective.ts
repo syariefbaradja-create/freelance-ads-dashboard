@@ -46,7 +46,10 @@ export type MetricFieldKey =
   | "leads"
   | "conversions"
   | "purchases"
-  | "revenue";
+  | "revenue"
+  | "viewProductPage"
+  | "addToCart"
+  | "addToCartValue";
 
 export const METRIC_FIELD_LABELS: Record<MetricFieldKey, string> = {
   impressions: "Impressions",
@@ -59,18 +62,29 @@ export const METRIC_FIELD_LABELS: Record<MetricFieldKey, string> = {
   conversions: "Conversions",
   purchases: "Purchases",
   revenue: "Revenue",
+  viewProductPage: "View Product Page",
+  addToCart: "Add to Cart",
+  addToCartValue: "Add to Cart Value",
 };
 
 // Which raw metric fields are relevant (shown) for each objective —
 // PRD 5.1 table. Derived metrics (CTR, CPC, CPM, etc.) are never stored,
 // so they're not part of this list — they're computed for display.
 export const OBJECTIVE_METRIC_FIELDS: Record<Objective, MetricFieldKey[]> = {
-  awareness: ["impressions", "reach", "frequency"],
+  awareness: ["impressions", "reach", "frequency", "clicks"],
   traffic: ["impressions", "clicks"],
-  engagement: ["impressions", "postEngagements", "videoViews"],
+  engagement: ["impressions", "postEngagements", "videoViews", "clicks"],
   leads: ["impressions", "clicks", "leads"],
   sales: ["impressions", "clicks", "conversions", "revenue"],
-  meta_cpas: ["impressions", "clicks", "purchases", "revenue"],
+  meta_cpas: [
+    "impressions",
+    "clicks",
+    "viewProductPage",
+    "addToCart",
+    "addToCartValue",
+    "purchases",
+    "revenue",
+  ],
 };
 
 // Which fields are mandatory (besides `spend`, which is always required) —

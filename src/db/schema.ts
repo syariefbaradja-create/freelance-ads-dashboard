@@ -135,6 +135,10 @@ export const metrics = pgTable(
     conversions: numeric("conversions", { precision: 14, scale: 0 }),
     purchases: numeric("purchases", { precision: 14, scale: 0 }),
     revenue: numeric("revenue", { precision: 14, scale: 2 }),
+    // Meta CPAS funnel metrics (View Product Page -> Add to Cart -> Purchase).
+    viewProductPage: numeric("view_product_page", { precision: 14, scale: 0 }),
+    addToCart: numeric("add_to_cart", { precision: 14, scale: 0 }),
+    addToCartValue: numeric("add_to_cart_value", { precision: 14, scale: 2 }),
     createdBy: uuid("created_by")
       .notNull()
       .references(() => admins.id),

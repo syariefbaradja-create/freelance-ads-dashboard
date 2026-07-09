@@ -23,6 +23,9 @@ export const COLUMN_HEADER_MAP: Record<string, string> = {
   "catalog/product set name": "catalogName",
   "revenue (opsional)": "revenue",
   "revenue": "revenue",
+  "view product page": "viewProductPage",
+  "add to cart": "addToCart",
+  "add to cart value": "addToCartValue",
 };
 
 // Derived columns present in the template (CPM, CTR, etc.) are computed by

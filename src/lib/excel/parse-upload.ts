@@ -30,6 +30,9 @@ export type UploadRowData = {
   conversions: number | null;
   purchases: number | null;
   revenue: number | null;
+  viewProductPage: number | null;
+  addToCart: number | null;
+  addToCartValue: number | null;
 };
 
 export type ParsedRow = {
@@ -104,6 +107,9 @@ const NUMERIC_FIELDS: MetricFieldKey[] = [
   "conversions",
   "purchases",
   "revenue",
+  "viewProductPage",
+  "addToCart",
+  "addToCartValue",
 ];
 
 export function validateRow(
@@ -283,6 +289,9 @@ export function validateRow(
     conversions: parsedNumbers.conversions ?? null,
     purchases: parsedNumbers.purchases ?? null,
     revenue: parsedNumbers.revenue ?? null,
+    viewProductPage: parsedNumbers.viewProductPage ?? null,
+    addToCart: parsedNumbers.addToCart ?? null,
+    addToCartValue: parsedNumbers.addToCartValue ?? null,
   };
 
   return {

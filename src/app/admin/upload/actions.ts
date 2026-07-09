@@ -185,6 +185,9 @@ export async function commitUploadRows(
       conversions: toNumeric(row.conversions),
       purchases: toNumeric(row.purchases),
       revenue: toNumeric(row.revenue),
+      viewProductPage: toNumeric(row.viewProductPage),
+      addToCart: toNumeric(row.addToCart),
+      addToCartValue: toNumeric(row.addToCartValue),
     };
 
     await db

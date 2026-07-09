@@ -91,6 +91,9 @@ export async function getAdminDashboardData(filters: AdminDashboardFilters) {
         conversions: toNumber(raw.conversions),
         purchases: toNumber(raw.purchases),
         revenue: toNumber(raw.revenue),
+        viewProductPage: toNumber(raw.viewProductPage),
+        addToCart: toNumber(raw.addToCart),
+        addToCartValue: toNumber(raw.addToCartValue),
       };
 
       const list = metricsByCampaign.get(raw.campaignId) ?? [];
