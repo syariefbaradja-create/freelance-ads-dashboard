@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { campaigns, clients, metrics, topups } from "@/db/schema";
-import { calcClientBudget } from "@/lib/metrics/budget";
+import {
+  BUDGET_CATEGORY_LABELS,
+  calcBudgetBreakdown,
+  calcClientBudget,
+} from "@/lib/metrics/budget";
 import { formatCurrency } from "@/lib/metrics/derived";
 import { DeleteTopupButton } from "./delete-topup-button";
 
@@ -19,35 +23,61 @@ export default async function ClientBudgetPage({
     notFound();
   }
 
-  const [topupRows, campaignIds] = await Promise.all([
+  const [topupRows, campaignRows] = await Promise.all([
     db
       .select()
       .from(topups)
       .where(eq(topups.clientId, id))
       .orderBy(desc(topups.date)),
     db
-      .select({ id: campaigns.id })
+      .select({
+        id: campaigns.id,
+        platform: campaigns.platform,
+        objective: campaigns.objective,
+      })
       .from(campaigns)
       .where(eq(campaigns.clientId, id)),
   ]);
 
   const totalTopup = topupRows.reduce((sum, t) => sum + Number(t.amount), 0);
 
-  let totalSpend = 0;
-  if (campaignIds.length > 0) {
+  const spendByCampaign = new Map<string, number>();
+  if (campaignRows.length > 0) {
     const metricRows = await db
-      .select({ spend: metrics.spend })
+      .select({ campaignId: metrics.campaignId, spend: metrics.spend })
       .from(metrics)
       .where(
         inArray(
           metrics.campaignId,
-          campaignIds.map((c) => c.id)
+          campaignRows.map((c) => c.id)
         )
       );
-    totalSpend = metricRows.reduce((sum, m) => sum + Number(m.spend), 0);
+    for (const m of metricRows) {
+      spendByCampaign.set(
+        m.campaignId,
+        (spendByCampaign.get(m.campaignId) ?? 0) + Number(m.spend)
+      );
+    }
   }
 
+  const totalSpend = Array.from(spendByCampaign.values()).reduce(
+    (sum, s) => sum + s,
+    0
+  );
+
   const budget = calcClientBudget(totalTopup, totalSpend);
+
+  const { categories, uncategorizedTopup } = calcBudgetBreakdown(
+    topupRows.map((t) => ({
+      amount: Number(t.amount),
+      category: t.platformCategory,
+    })),
+    campaignRows.map((c) => ({
+      platform: c.platform,
+      objective: c.objective,
+      spend: spendByCampaign.get(c.id) ?? 0,
+    }))
+  );
 
   return (
     <div>
@@ -91,6 +121,53 @@ export default async function ClientBudgetPage({
         </div>
       </div>
 
+      <section className="mb-6">
+        <h2 className="mb-3 section-title">Rincian per Platform</h2>
+        <div className="table-card">
+          <table className="table-base">
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>Total Top Up</th>
+                <th>Total Spend</th>
+                <th>Sisa Budget</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((c) => (
+                <tr key={c.category}>
+                  <td className="font-medium text-slate-900">
+                    {BUDGET_CATEGORY_LABELS[c.category]}
+                  </td>
+                  <td>{formatCurrency(c.totalTopup)}</td>
+                  <td>{formatCurrency(c.totalSpend)}</td>
+                  <td
+                    className={
+                      c.remaining < 0 ? "font-medium text-red-600" : ""
+                    }
+                  >
+                    {formatCurrency(c.remaining)}
+                  </td>
+                </tr>
+              ))}
+              {uncategorizedTopup > 0 && (
+                <tr>
+                  <td className="font-medium text-slate-900">
+                    Umum{" "}
+                    <span className="text-xs font-normal text-slate-400">
+                      (belum dikategorikan)
+                    </span>
+                  </td>
+                  <td>{formatCurrency(uncategorizedTopup)}</td>
+                  <td>—</td>
+                  <td>{formatCurrency(uncategorizedTopup)}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <div className="mb-4 flex justify-end">
         <Link href={`/admin/clients/${client.id}/budget/new`} className="btn-primary">
           + Tambah Top Up
@@ -103,6 +180,7 @@ export default async function ClientBudgetPage({
             <tr>
               <th>Tanggal</th>
               <th>Jumlah</th>
+              <th>Platform</th>
               <th>Catatan</th>
               <th />
             </tr>
@@ -115,6 +193,15 @@ export default async function ClientBudgetPage({
                 </td>
                 <td className="whitespace-nowrap">
                   {formatCurrency(Number(topup.amount))}
+                </td>
+                <td>
+                  {topup.platformCategory ? (
+                    <span className="badge-indigo">
+                      {BUDGET_CATEGORY_LABELS[topup.platformCategory]}
+                    </span>
+                  ) : (
+                    <span className="badge-gray">Umum</span>
+                  )}
                 </td>
                 <td>{topup.note}</td>
                 <td>
@@ -135,7 +222,7 @@ export default async function ClientBudgetPage({
             ))}
             {topupRows.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-slate-500">
+                <td colSpan={5} className="py-8 text-center text-slate-500">
                   Belum ada top up. Klik &quot;+ Tambah Top Up&quot; untuk
                   mulai.
                 </td>

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { topups } from "@/db/schema";
 import { createClient as createServerSupabase } from "@/lib/supabase/server";
+import { BUDGET_CATEGORY_VALUES } from "@/lib/metrics/budget";
 
 export type TopupFormState = { error?: string };
 
@@ -14,6 +15,9 @@ const topupSchema = z.object({
   amount: z.coerce.number({ message: "Harus berupa angka" }).positive("Harus lebih dari 0"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal harus YYYY-MM-DD"),
   note: z.string().optional(),
+  platformCategory: z.enum(BUDGET_CATEGORY_VALUES, {
+    message: "Pilih platform tujuan top up",
+  }),
 });
 
 function readTopupFormData(formData: FormData) {
@@ -21,6 +25,7 @@ function readTopupFormData(formData: FormData) {
     amount: formData.get("amount"),
     date: formData.get("date"),
     note: formData.get("note") || undefined,
+    platformCategory: formData.get("platformCategory"),
   };
 }
 
@@ -49,6 +54,7 @@ export async function createTopup(
     amount: String(parsed.data.amount),
     date: parsed.data.date,
     note: parsed.data.note ?? null,
+    platformCategory: parsed.data.platformCategory,
     createdBy: user.id,
   });
 
@@ -74,6 +80,7 @@ export async function updateTopup(
       amount: String(parsed.data.amount),
       date: parsed.data.date,
       note: parsed.data.note ?? null,
+      platformCategory: parsed.data.platformCategory,
       updatedAt: new Date(),
     })
     .where(eq(topups.id, topupId));

@@ -3,6 +3,10 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import type { TopupFormState } from "@/lib/actions/topups";
+import {
+  BUDGET_CATEGORY_LABELS,
+  BUDGET_CATEGORY_VALUES,
+} from "@/lib/metrics/budget";
 
 type TopupAction = (
   prevState: TopupFormState,
@@ -16,7 +20,12 @@ export function TopupForm({
 }: {
   clientId: string;
   action: TopupAction;
-  defaultValues?: { amount: string; date: string; note: string | null };
+  defaultValues?: {
+    amount: string;
+    date: string;
+    note: string | null;
+    platformCategory?: string | null;
+  };
 }) {
   const [state, formAction, pending] = useActionState(
     action,
@@ -54,6 +63,28 @@ export function TopupForm({
             className="input-field"
           />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="platformCategory" className="field-label">
+          Platform Tujuan
+        </label>
+        <select
+          id="platformCategory"
+          name="platformCategory"
+          required
+          defaultValue={defaultValues?.platformCategory ?? ""}
+          className="select-field"
+        >
+          <option value="" disabled>
+            Pilih platform
+          </option>
+          {BUDGET_CATEGORY_VALUES.map((value) => (
+            <option key={value} value={value}>
+              {BUDGET_CATEGORY_LABELS[value]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>

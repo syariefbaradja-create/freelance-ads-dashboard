@@ -33,6 +33,16 @@ export const objectiveEnum = pgEnum("objective", [
   "meta_cpas",
 ]);
 
+// Budget bucket for top ups — distinct from campaigns.platform: Meta CPAS
+// runs on its own ad account, separate from regular Meta campaigns, so it
+// gets its own bucket even though both are technically platform "meta".
+export const budgetCategoryEnum = pgEnum("budget_category", [
+  "meta",
+  "meta_cpas",
+  "tiktok",
+  "google",
+]);
+
 export const admins = pgTable(
   "admins",
   {
@@ -185,6 +195,10 @@ export const topups = pgTable(
     amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
     date: date("date").notNull(),
     note: text("note"),
+    // Nullable so pre-existing top ups (before this feature) stay valid —
+    // they show up as "Umum / belum dikategorikan" in the breakdown. New
+    // top ups are required to set this at the application layer.
+    platformCategory: budgetCategoryEnum("platform_category"),
     createdBy: uuid("created_by")
       .notNull()
       .references(() => admins.id),

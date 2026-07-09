@@ -31,6 +31,7 @@ export default async function EditTopupPage({
           amount: topup.amount,
           date: topup.date,
           note: topup.note,
+          platformCategory: topup.platformCategory,
         }}
       />
     </div>
