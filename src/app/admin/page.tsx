@@ -5,6 +5,7 @@ import {
   type Platform,
 } from "@/lib/metrics/objective";
 import { formatCurrency, formatNumber } from "@/lib/metrics/derived";
+import { BUDGET_CATEGORY_LABELS } from "@/lib/metrics/budget";
 import { PerformanceSections } from "@/components/dashboard/performance-sections";
 import { getAdminDashboardData } from "./data";
 import { OverviewFilterBar } from "./overview-filter-bar";
@@ -36,8 +37,14 @@ export default async function AdminHomePage({
   const dateFrom = params.from || null;
   const dateTo = params.to || null;
 
-  const { clientsList, campaigns, metricsByCampaign, budgetByClient, overview } =
-    await getAdminDashboardData({
+  const {
+    clientsList,
+    campaigns,
+    metricsByCampaign,
+    budgetByClient,
+    platformBudget,
+    overview,
+  } = await getAdminDashboardData({
       clientId: clientFilter,
       platform: platformFilter,
       objectives: objectiveFilters,
@@ -90,6 +97,47 @@ export default async function AdminHomePage({
           <p className="text-2xl">📭</p>
           <p>Belum ada campaign yang cocok dengan filter ini.</p>
         </div>
+      )}
+
+      {budgetByClient.length > 0 && (
+        <section>
+          <h2 className="mb-3 section-title">
+            Ringkasan Budget per Platform (sepanjang waktu)
+          </h2>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {platformBudget.map((p) => (
+              <div key={p.category} className="card p-4">
+                <p className="mb-2 text-sm font-semibold text-slate-700">
+                  {BUDGET_CATEGORY_LABELS[p.category]}
+                </p>
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Top Up</span>
+                    <span className="font-medium text-slate-900">
+                      {formatCurrency(p.totalTopup)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Spend</span>
+                    <span className="font-medium text-slate-900">
+                      {formatCurrency(p.totalSpend)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-1">
+                    <span className="text-slate-500">Sisa</span>
+                    <span
+                      className={`font-semibold ${
+                        p.remaining < 0 ? "text-red-600" : "text-slate-900"
+                      }`}
+                    >
+                      {formatCurrency(p.remaining)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
 
       {budgetByClient.length > 0 && (

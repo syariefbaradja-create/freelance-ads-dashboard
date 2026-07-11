@@ -4,7 +4,7 @@ import { campaigns, clients, metrics, topups } from "@/db/schema";
 import type { CampaignRow } from "@/lib/metrics/campaign-row";
 import type { MetricRow } from "@/lib/metrics/summary";
 import type { Objective, Platform } from "@/lib/metrics/objective";
-import { calcClientBudget } from "@/lib/metrics/budget";
+import { calcBudgetBreakdown, calcClientBudget } from "@/lib/metrics/budget";
 
 export type AdminDashboardFilters = {
   clientId: string | null;
@@ -107,8 +107,21 @@ export async function getAdminDashboardData(filters: AdminDashboardFilters) {
   // must reflect every top up and every rupiah ever spent, not just the
   // slice currently being viewed above.
   const [allCampaigns, allTopups] = await Promise.all([
-    db.select({ id: campaigns.id, clientId: campaigns.clientId }).from(campaigns),
-    db.select({ clientId: topups.clientId, amount: topups.amount }).from(topups),
+    db
+      .select({
+        id: campaigns.id,
+        clientId: campaigns.clientId,
+        platform: campaigns.platform,
+        objective: campaigns.objective,
+      })
+      .from(campaigns),
+    db
+      .select({
+        clientId: topups.clientId,
+        amount: topups.amount,
+        platformCategory: topups.platformCategory,
+      })
+      .from(topups),
   ]);
 
   const allCampaignToClient = new Map(
@@ -124,7 +137,12 @@ export async function getAdminDashboardData(filters: AdminDashboardFilters) {
       : [];
 
   const allTimeSpendByClient = new Map<string, number>();
+  const allTimeSpendByCampaign = new Map<string, number>();
   for (const m of allTimeMetrics) {
+    allTimeSpendByCampaign.set(
+      m.campaignId,
+      (allTimeSpendByCampaign.get(m.campaignId) ?? 0) + Number(m.spend)
+    );
     const clientId = allCampaignToClient.get(m.campaignId);
     if (!clientId) continue;
     allTimeSpendByClient.set(
@@ -132,6 +150,24 @@ export async function getAdminDashboardData(filters: AdminDashboardFilters) {
       (allTimeSpendByClient.get(clientId) ?? 0) + Number(m.spend)
     );
   }
+
+  // Global per-platform summary (all clients combined) — same categories
+  // as each client's own budget breakdown page, just aggregated across
+  // everyone. Legacy uncategorized top ups are deliberately left out here
+  // (they still show up as "Umum" on the per-client breakdown page).
+  const { categories: platformBudget } = calcBudgetBreakdown(
+    allTopups
+      .filter((t) => t.platformCategory != null)
+      .map((t) => ({
+        amount: Number(t.amount),
+        category: t.platformCategory,
+      })),
+    allCampaigns.map((c) => ({
+      platform: c.platform,
+      objective: c.objective,
+      spend: allTimeSpendByCampaign.get(c.id) ?? 0,
+    }))
+  );
 
   const allTimeTopupByClient = new Map<string, number>();
   for (const t of allTopups) {
@@ -158,6 +194,7 @@ export async function getAdminDashboardData(filters: AdminDashboardFilters) {
     campaigns: campaignsOut,
     metricsByCampaign,
     budgetByClient,
+    platformBudget,
     overview: {
       totalClients: clientsList.length,
       activeClientCount: clientsList.filter((c) => c.isActive).length,
