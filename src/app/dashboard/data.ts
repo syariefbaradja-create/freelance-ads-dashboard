@@ -54,7 +54,7 @@ function toMetricRow(raw: MetricRowRaw): MetricRow {
 
 export type DashboardFilters = {
   platform: Platform | null;
-  objective: Objective | null;
+  objectives: Objective[];
   dateFrom: string | null;
   dateTo: string | null;
 };
@@ -80,8 +80,8 @@ export async function getDashboardData(
   if (filters.platform) {
     campaignsQuery = campaignsQuery.eq("platform", filters.platform);
   }
-  if (filters.objective) {
-    campaignsQuery = campaignsQuery.eq("objective", filters.objective);
+  if (filters.objectives.length > 0) {
+    campaignsQuery = campaignsQuery.in("objective", filters.objectives);
   }
 
   const { data: campaignRows } = await campaignsQuery;

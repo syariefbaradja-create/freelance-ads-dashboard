@@ -17,6 +17,19 @@ export const OBJECTIVE_LABELS: Record<Objective, string> = {
   meta_cpas: "Meta CPAS (Catalog Sales)",
 };
 
+/** Next.js collapses a single repeated query param to a plain string and
+ * only produces an array once there are 2+ — this normalizes both cases,
+ * dropping anything that isn't a real objective value. Empty result means
+ * "no filter" (show all), same as the old single-select's "Semua". */
+export function parseObjectivesParam(
+  value: string | string[] | undefined
+): Objective[] {
+  const raw = Array.isArray(value) ? value : value ? [value] : [];
+  return raw.filter((v): v is Objective =>
+    (OBJECTIVE_VALUES as readonly string[]).includes(v)
+  );
+}
+
 export const PLATFORM_VALUES = ["meta", "tiktok", "google"] as const;
 export type Platform = (typeof PLATFORM_VALUES)[number];
 

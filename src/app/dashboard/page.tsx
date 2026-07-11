@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import {
-  OBJECTIVE_VALUES,
   PLATFORM_VALUES,
-  type Objective,
+  parseObjectivesParam,
   type Platform,
 } from "@/lib/metrics/objective";
 import { formatCurrency } from "@/lib/metrics/derived";
@@ -15,16 +14,12 @@ type SearchParams = {
   from?: string;
   to?: string;
   platform?: string;
-  objective?: string;
+  objective?: string | string[];
   granularity?: string;
 };
 
 function isPlatform(value: string | undefined): value is Platform {
   return !!value && (PLATFORM_VALUES as readonly string[]).includes(value);
-}
-
-function isObjective(value: string | undefined): value is Objective {
-  return !!value && (OBJECTIVE_VALUES as readonly string[]).includes(value);
 }
 
 export default async function DashboardPage({
@@ -35,9 +30,7 @@ export default async function DashboardPage({
   const params = await searchParams;
 
   const platformFilter = isPlatform(params.platform) ? params.platform : null;
-  const objectiveFilter = isObjective(params.objective)
-    ? params.objective
-    : null;
+  const objectiveFilters = parseObjectivesParam(params.objective);
   const granularity = params.granularity === "daily" ? "daily" : "weekly";
   const dateFrom = params.from || null;
   const dateTo = params.to || null;
@@ -46,7 +39,7 @@ export default async function DashboardPage({
   const [{ campaigns, metricsByCampaign }, budget] = await Promise.all([
     getDashboardData(supabase, {
       platform: platformFilter,
-      objective: objectiveFilter,
+      objectives: objectiveFilters,
       dateFrom,
       dateTo,
     }),
@@ -92,7 +85,7 @@ export default async function DashboardPage({
 
       <FilterBar
         platform={platformFilter ?? "all"}
-        objective={objectiveFilter ?? "all"}
+        objectives={objectiveFilters}
         granularity={granularity}
         from={dateFrom ?? ""}
         to={dateTo ?? ""}

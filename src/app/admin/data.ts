@@ -9,7 +9,7 @@ import { calcClientBudget } from "@/lib/metrics/budget";
 export type AdminDashboardFilters = {
   clientId: string | null;
   platform: Platform | null;
-  objective: Objective | null;
+  objectives: Objective[];
   dateFrom: string | null;
   dateTo: string | null;
 };
@@ -33,8 +33,8 @@ export async function getAdminDashboardData(filters: AdminDashboardFilters) {
   if (filters.platform) {
     campaignConditions.push(eq(campaigns.platform, filters.platform));
   }
-  if (filters.objective) {
-    campaignConditions.push(eq(campaigns.objective, filters.objective));
+  if (filters.objectives.length > 0) {
+    campaignConditions.push(inArray(campaigns.objective, filters.objectives));
   }
 
   const campaignRows = await db

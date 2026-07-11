@@ -3,17 +3,19 @@ import {
   OBJECTIVE_VALUES,
   PLATFORM_LABELS,
   PLATFORM_VALUES,
+  type Objective,
 } from "@/lib/metrics/objective";
+import { ObjectiveMultiSelect } from "@/components/objective-multi-select";
 
 export function FilterBar({
   platform,
-  objective,
+  objectives,
   granularity,
   from,
   to,
 }: {
   platform: string;
-  objective: string;
+  objectives: Objective[];
   granularity: string;
   from: string;
   to: string;
@@ -63,22 +65,15 @@ export function FilterBar({
         </select>
       </div>
       <div>
-        <label htmlFor="objective" className="field-label">
-          Objective
-        </label>
-        <select
-          id="objective"
+        <label className="field-label">Objective</label>
+        <ObjectiveMultiSelect
           name="objective"
-          defaultValue={objective}
-          className="select-field py-1.5"
-        >
-          <option value="all">Semua</option>
-          {OBJECTIVE_VALUES.map((value) => (
-            <option key={value} value={value}>
-              {OBJECTIVE_LABELS[value]}
-            </option>
-          ))}
-        </select>
+          options={OBJECTIVE_VALUES.map((value) => ({
+            value,
+            label: OBJECTIVE_LABELS[value],
+          }))}
+          defaultValues={objectives}
+        />
       </div>
       <div>
         <label htmlFor="granularity" className="field-label">
