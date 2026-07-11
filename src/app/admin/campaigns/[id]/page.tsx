@@ -4,12 +4,29 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { campaigns, clients, metrics } from "@/db/schema";
 import {
+  METRIC_FIELD_KINDS,
   METRIC_FIELD_LABELS,
   OBJECTIVE_LABELS,
   OBJECTIVE_METRIC_FIELDS,
   PLATFORM_LABELS,
 } from "@/lib/metrics/objective";
+import { formatCurrency, formatNumber, formatRatio } from "@/lib/metrics/derived";
 import { DeleteMetricButton } from "./metrics/delete-metric-button";
+
+function formatMetricValue(
+  kind: "currency" | "number" | "ratio",
+  value: string | null
+) {
+  const num = value == null ? null : Number(value);
+  switch (kind) {
+    case "currency":
+      return formatCurrency(num);
+    case "ratio":
+      return formatRatio(num);
+    default:
+      return formatNumber(num);
+  }
+}
 
 export default async function CampaignDetailPage({
   params,
@@ -92,10 +109,12 @@ export default async function CampaignDetailPage({
                 <td className="whitespace-nowrap font-medium text-slate-900">
                   {metric.date}
                 </td>
-                <td className="whitespace-nowrap">{metric.spend}</td>
+                <td className="whitespace-nowrap">
+                  {formatCurrency(Number(metric.spend))}
+                </td>
                 {fields.map((field) => (
                   <td key={field} className="whitespace-nowrap">
-                    {metric[field] ?? "-"}
+                    {formatMetricValue(METRIC_FIELD_KINDS[field], metric[field])}
                   </td>
                 ))}
                 <td className="whitespace-nowrap">

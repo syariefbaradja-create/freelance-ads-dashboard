@@ -144,7 +144,7 @@ export default async function InputDataPage({
   // Step 3: fill in the daily metric data, form fields adapt to the
   // campaign's objective.
   return (
-    <div className="max-w-lg">
+    <div>
       <h1 className="mb-6 page-title">Input Data Manual</h1>
       <p className="mb-4 text-sm text-slate-500">
         Langkah 3 dari 3 — {selectedClient.name} · {selectedCampaign.name} (

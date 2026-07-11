@@ -73,7 +73,7 @@ export function formatNumber(value: number | null | undefined, decimals = 0) {
 
 export function formatCurrency(value: number | null | undefined) {
   if (value == null || Number.isNaN(value)) return "—";
-  return "Rp" + value.toLocaleString("id-ID", { maximumFractionDigits: 0 });
+  return "Rp " + value.toLocaleString("id-ID", { maximumFractionDigits: 0 });
 }
 
 export function formatPercent(value: number | null | undefined, decimals = 2) {

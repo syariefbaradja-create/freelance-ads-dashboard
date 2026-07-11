@@ -80,6 +80,28 @@ export const METRIC_FIELD_LABELS: Record<MetricFieldKey, string> = {
   addToCartValue: "Add to Cart Value",
 };
 
+/** Which formatter (currency "Rp", plain number, or "x" ratio) each raw
+ * field needs for display — used anywhere a raw metric value is rendered
+ * outside the summary cards (e.g. the campaign detail metrics table). */
+export const METRIC_FIELD_KINDS: Record<
+  MetricFieldKey,
+  "currency" | "number" | "ratio"
+> = {
+  impressions: "number",
+  reach: "number",
+  frequency: "ratio",
+  clicks: "number",
+  postEngagements: "number",
+  videoViews: "number",
+  leads: "number",
+  conversions: "number",
+  purchases: "number",
+  revenue: "currency",
+  viewProductPage: "number",
+  addToCart: "number",
+  addToCartValue: "currency",
+};
+
 // Which raw metric fields are relevant (shown) for each objective —
 // PRD 5.1 table. Derived metrics (CTR, CPC, CPM, etc.) are never stored,
 // so they're not part of this list — they're computed for display.

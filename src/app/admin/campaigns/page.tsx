@@ -1,16 +1,29 @@
 import Link from "next/link";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { campaigns, clients } from "@/db/schema";
-import { OBJECTIVE_LABELS, PLATFORM_LABELS } from "@/lib/metrics/objective";
+import {
+  OBJECTIVE_LABELS,
+  OBJECTIVE_VALUES,
+  PLATFORM_LABELS,
+  parseObjectivesParam,
+} from "@/lib/metrics/objective";
+import { ObjectiveMultiSelect } from "@/components/objective-multi-select";
 import { DeleteCampaignButton } from "./delete-campaign-button";
 
 export default async function CampaignsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ clientId?: string }>;
+  searchParams: Promise<{ clientId?: string; objective?: string | string[] }>;
 }) {
-  const { clientId } = await searchParams;
+  const { clientId, objective } = await searchParams;
+  const objectiveFilters = parseObjectivesParam(objective);
+
+  const campaignConditions = [];
+  if (clientId) campaignConditions.push(eq(campaigns.clientId, clientId));
+  if (objectiveFilters.length > 0) {
+    campaignConditions.push(inArray(campaigns.objective, objectiveFilters));
+  }
 
   const [clientsList, rows] = await Promise.all([
     db
@@ -27,7 +40,7 @@ export default async function CampaignsPage({
       })
       .from(campaigns)
       .innerJoin(clients, eq(campaigns.clientId, clients.id))
-      .where(clientId ? eq(campaigns.clientId, clientId) : undefined)
+      .where(campaignConditions.length > 0 ? and(...campaignConditions) : undefined)
       .orderBy(asc(clients.name), asc(campaigns.name)),
   ]);
 
@@ -58,6 +71,17 @@ export default async function CampaignsPage({
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="field-label">Objective</label>
+          <ObjectiveMultiSelect
+            name="objective"
+            options={OBJECTIVE_VALUES.map((value) => ({
+              value,
+              label: OBJECTIVE_LABELS[value],
+            }))}
+            defaultValues={objectiveFilters}
+          />
         </div>
         <button type="submit" className="btn-primary py-1.5">
           Terapkan
@@ -116,8 +140,8 @@ export default async function CampaignsPage({
             {rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-slate-500">
-                  {clientId
-                    ? "Tidak ada campaign untuk client ini."
+                  {clientId || objectiveFilters.length > 0
+                    ? "Tidak ada campaign yang cocok dengan filter ini."
                     : 'Belum ada campaign. Klik "+ Tambah Campaign" untuk mulai.'}
                 </td>
               </tr>

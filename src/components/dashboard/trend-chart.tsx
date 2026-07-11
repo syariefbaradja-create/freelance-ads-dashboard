@@ -65,6 +65,10 @@ export function TrendChart({
               tick={{ fontSize: 12, fill: "#64748b" }}
               axisLine={{ stroke: "#e2e8f0" }}
               tickLine={false}
+              width={lines[0] ? 80 : 40}
+              tickFormatter={(value) =>
+                lines[0] ? lines[0].format(Number(value)) : String(value)
+              }
             />
             <YAxis
               yAxisId="right"
@@ -72,6 +76,10 @@ export function TrendChart({
               tick={{ fontSize: 12, fill: "#64748b" }}
               axisLine={{ stroke: "#e2e8f0" }}
               tickLine={false}
+              width={lines[1] ? 80 : 40}
+              tickFormatter={(value) =>
+                lines[1] ? lines[1].format(Number(value)) : String(value)
+              }
             />
             <Tooltip
               contentStyle={{
