@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -11,64 +10,43 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { TrendFieldKey, TrendPoint } from "@/lib/metrics/trend";
-import { METRIC_FIELD_LABELS, type MetricFieldKey } from "@/lib/metrics/objective";
+import type { TrendPoint } from "@/lib/metrics/trend";
+import type { RawMetricValues } from "@/lib/metrics/summary";
 
-function fieldLabel(field: TrendFieldKey): string {
-  return field === "spend" ? "Spend" : METRIC_FIELD_LABELS[field];
-}
+export type TrendLine = {
+  key: string;
+  label: string;
+  color: string;
+  getValue: (raw: RawMetricValues) => number | null;
+  format: (value: number | null) => string;
+};
 
 export function TrendChart({
   data,
-  fields,
-  defaultField,
+  lines,
 }: {
   data: TrendPoint[];
-  fields: MetricFieldKey[];
-  defaultField: MetricFieldKey;
+  lines: TrendLine[];
 }) {
-  const options: TrendFieldKey[] = ["spend", ...fields];
-  const [lineOne, setLineOne] = useState<TrendFieldKey>("spend");
-  const [lineTwo, setLineTwo] = useState<TrendFieldKey>(defaultField);
-
   if (data.length === 0) {
     return (
       <p className="text-sm text-slate-500">Belum ada data untuk grafik.</p>
     );
   }
 
+  if (lines.length === 0) {
+    return (
+      <div className="card w-full p-4">
+        <p className="text-sm text-slate-500">
+          Klik salah satu kartu metrik di atas untuk menampilkannya di
+          grafik (maks. 2 sekaligus).
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="card w-full p-4">
-      <div className="mb-3 flex flex-wrap items-center gap-4">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-500">Garis 1</span>
-          <select
-            value={lineOne}
-            onChange={(e) => setLineOne(e.target.value as TrendFieldKey)}
-            className="select-field py-1 text-sm"
-          >
-            {options.map((field) => (
-              <option key={field} value={field}>
-                {fieldLabel(field)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-500">Garis 2</span>
-          <select
-            value={lineTwo}
-            onChange={(e) => setLineTwo(e.target.value as TrendFieldKey)}
-            className="select-field py-1 text-sm"
-          >
-            {options.map((field) => (
-              <option key={field} value={field}>
-                {fieldLabel(field)}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -101,26 +79,30 @@ export function TrendChart({
                 border: "1px solid #e2e8f0",
                 boxShadow: "0 4px 12px rgba(15, 23, 42, 0.08)",
               }}
+              formatter={(value, name, item) => {
+                const line = lines.find((l) => l.label === name);
+                const raw =
+                  typeof value === "number"
+                    ? value
+                    : Array.isArray(value)
+                      ? Number(value[0])
+                      : Number(value);
+                return line ? line.format(raw) : item.value;
+              }}
             />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Line
-              yAxisId="left"
-              type="monotone"
-              dataKey={lineOne}
-              name={fieldLabel(lineOne)}
-              stroke="#f97316"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey={lineTwo}
-              name={fieldLabel(lineTwo)}
-              stroke="#4f46e5"
-              strokeWidth={2}
-              dot={false}
-            />
+            {lines.map((line, index) => (
+              <Line
+                key={line.key}
+                yAxisId={index === 0 ? "left" : "right"}
+                type="monotone"
+                dataKey={line.getValue}
+                name={line.label}
+                stroke={line.color}
+                strokeWidth={2}
+                dot={false}
+              />
+            ))}
           </LineChart>
         </ResponsiveContainer>
       </div>

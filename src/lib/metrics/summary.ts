@@ -14,7 +14,7 @@ import {
   formatPercent,
   formatRatio,
 } from "./derived";
-import { OBJECTIVE_LABELS, type Objective } from "./objective";
+import { OBJECTIVE_LABELS, type MetricFieldKey, type Objective } from "./objective";
 
 export type MetricRow = {
   date: string;
@@ -99,137 +99,179 @@ export function aggregateMetrics(rows: MetricRow[]): MetricTotals {
   return totals;
 }
 
-export type SummaryCard = { label: string; value: string };
+/** Shape shared by MetricTotals (grand total) and TrendPoint (per-bucket
+ * sums, see trend.ts) — lets one descriptor list drive both the summary
+ * cards and the chart's selectable metrics without circular imports. */
+export type RawMetricValues = Partial<Record<"spend" | MetricFieldKey, number | null>>;
+
+export type MetricDescriptor = {
+  key: string;
+  label: string;
+  getValue: (raw: RawMetricValues) => number | null;
+  format: (value: number | null) => string;
+};
+
+export type SummaryCard = { key: string; label: string; value: string };
+
+function rawMetric(
+  key: "spend" | MetricFieldKey,
+  label: string,
+  format: (value: number | null) => string
+): MetricDescriptor {
+  return { key, label, getValue: (raw) => raw[key] ?? null, format };
+}
+
+// CPM/CTR/CPC only need spend, impressions, and clicks — always meaningful
+// (and shown) regardless of objective. Campaigns that don't collect clicks
+// yet just show "—" for CTR/CPC until they do.
+const reachEfficiencyMetrics: MetricDescriptor[] = [
+  {
+    key: "cpm",
+    label: "CPM",
+    getValue: (r) => calcCPM(r.spend ?? null, r.impressions ?? null),
+    format: formatCurrency,
+  },
+  {
+    key: "ctr",
+    label: "CTR",
+    getValue: (r) => calcCTR(r.clicks ?? null, r.impressions ?? null),
+    format: formatPercent,
+  },
+  {
+    key: "cpc",
+    label: "CPC",
+    getValue: (r) => calcCPC(r.spend ?? null, r.clicks ?? null),
+    format: formatCurrency,
+  },
+];
+
+/** Single source of truth for both the summary cards and the chart's
+ * clickable metric list for a given objective — every card here is
+ * selectable as a chart line (see ObjectivePanel). */
+export function getObjectiveMetricDescriptors(
+  objective: Objective
+): MetricDescriptor[] {
+  switch (objective) {
+    case "awareness":
+      return [
+        rawMetric("spend", "Spend", formatCurrency),
+        rawMetric("impressions", "Impressions", (v) => formatNumber(v)),
+        rawMetric("reach", "Reach", (v) => formatNumber(v)),
+        rawMetric("frequency", "Frequency", (v) => formatRatio(v)),
+        ...reachEfficiencyMetrics,
+      ];
+    case "traffic":
+      return [
+        rawMetric("spend", "Spend", formatCurrency),
+        rawMetric("impressions", "Impressions", (v) => formatNumber(v)),
+        rawMetric("clicks", "Clicks", (v) => formatNumber(v)),
+        ...reachEfficiencyMetrics,
+      ];
+    case "engagement":
+      return [
+        rawMetric("spend", "Spend", formatCurrency),
+        rawMetric("impressions", "Impressions", (v) => formatNumber(v)),
+        rawMetric("postEngagements", "Post Engagements", (v) => formatNumber(v)),
+        rawMetric("videoViews", "Video Views/ThruPlays", (v) => formatNumber(v)),
+        {
+          key: "costPerEngagement",
+          label: "Cost/Engagement",
+          getValue: (r) =>
+            calcCostPerEngagement(r.spend ?? null, r.postEngagements ?? null),
+          format: formatCurrency,
+        },
+        ...reachEfficiencyMetrics,
+      ];
+    case "leads":
+      return [
+        rawMetric("spend", "Spend", formatCurrency),
+        rawMetric("impressions", "Impressions", (v) => formatNumber(v)),
+        rawMetric("clicks", "Clicks", (v) => formatNumber(v)),
+        rawMetric("leads", "Leads", (v) => formatNumber(v)),
+        {
+          key: "cpl",
+          label: "CPL",
+          getValue: (r) => calcCPL(r.spend ?? null, r.leads ?? null),
+          format: formatCurrency,
+        },
+        ...reachEfficiencyMetrics,
+      ];
+    case "sales":
+      return [
+        rawMetric("spend", "Spend", formatCurrency),
+        rawMetric("impressions", "Impressions", (v) => formatNumber(v)),
+        rawMetric("clicks", "Clicks", (v) => formatNumber(v)),
+        rawMetric("conversions", "Conversions", (v) => formatNumber(v)),
+        {
+          key: "cpa",
+          label: "CPA",
+          getValue: (r) => calcCPA(r.spend ?? null, r.conversions ?? null),
+          format: formatCurrency,
+        },
+        rawMetric("revenue", "Revenue", formatCurrency),
+        {
+          key: "roas",
+          label: "ROAS",
+          getValue: (r) => calcROAS(r.revenue ?? null, r.spend ?? null),
+          format: formatRatio,
+        },
+        ...reachEfficiencyMetrics,
+      ];
+    case "meta_cpas":
+      return [
+        rawMetric("spend", "Spend", formatCurrency),
+        rawMetric("impressions", "Impressions", (v) => formatNumber(v)),
+        rawMetric("clicks", "Clicks", (v) => formatNumber(v)),
+        rawMetric("viewProductPage", "View Product Page", (v) => formatNumber(v)),
+        rawMetric("addToCart", "Add to Cart", (v) => formatNumber(v)),
+        rawMetric("addToCartValue", "Add to Cart Value", formatCurrency),
+        {
+          key: "costPerAddToCart",
+          label: "Cost/Add to Cart",
+          getValue: (r) => calcCostPerAddToCart(r.spend ?? null, r.addToCart ?? null),
+          format: formatCurrency,
+        },
+        {
+          key: "addToCartRate",
+          label: "Add to Cart Rate",
+          getValue: (r) =>
+            calcAddToCartRate(r.addToCart ?? null, r.viewProductPage ?? null),
+          format: formatPercent,
+        },
+        rawMetric("purchases", "Purchases", (v) => formatNumber(v)),
+        {
+          key: "conversionRate",
+          label: "Conversion Rate",
+          getValue: (r) => calcCartToPurchaseRate(r.purchases ?? null, r.addToCart ?? null),
+          format: formatPercent,
+        },
+        {
+          key: "costPerPurchase",
+          label: "Cost/Purchase",
+          getValue: (r) => calcCPA(r.spend ?? null, r.purchases ?? null),
+          format: formatCurrency,
+        },
+        rawMetric("revenue", "Revenue", formatCurrency),
+        {
+          key: "roas",
+          label: "ROAS",
+          getValue: (r) => calcROAS(r.revenue ?? null, r.spend ?? null),
+          format: formatRatio,
+        },
+        ...reachEfficiencyMetrics,
+      ];
+  }
+}
 
 export function buildSummaryCards(
   objective: Objective,
   totals: MetricTotals
 ): SummaryCard[] {
-  // CPM/CTR/CPC only need spend, impressions, and clicks — always
-  // meaningful (and shown) regardless of objective. Rows that don't
-  // collect clicks yet just show "—" for CTR/CPC until they do.
-  const reachEfficiencyCards: SummaryCard[] = [
-    {
-      label: "CPM",
-      value: formatCurrency(calcCPM(totals.spend, totals.impressions)),
-    },
-    {
-      label: "CTR",
-      value: formatPercent(calcCTR(totals.clicks, totals.impressions)),
-    },
-    {
-      label: "CPC",
-      value: formatCurrency(calcCPC(totals.spend, totals.clicks)),
-    },
-  ];
-
-  switch (objective) {
-    case "awareness":
-      return [
-        { label: "Spend", value: formatCurrency(totals.spend) },
-        { label: "Impressions", value: formatNumber(totals.impressions) },
-        { label: "Reach", value: formatNumber(totals.reach) },
-        { label: "Frequency", value: formatRatio(totals.frequency) },
-        ...reachEfficiencyCards,
-      ];
-    case "traffic":
-      return [
-        { label: "Spend", value: formatCurrency(totals.spend) },
-        { label: "Impressions", value: formatNumber(totals.impressions) },
-        { label: "Clicks", value: formatNumber(totals.clicks) },
-        ...reachEfficiencyCards,
-      ];
-    case "engagement":
-      return [
-        { label: "Spend", value: formatCurrency(totals.spend) },
-        { label: "Impressions", value: formatNumber(totals.impressions) },
-        {
-          label: "Post Engagements",
-          value: formatNumber(totals.postEngagements),
-        },
-        { label: "Video Views/ThruPlays", value: formatNumber(totals.videoViews) },
-        {
-          label: "Cost/Engagement",
-          value: formatCurrency(
-            calcCostPerEngagement(totals.spend, totals.postEngagements)
-          ),
-        },
-        ...reachEfficiencyCards,
-      ];
-    case "leads":
-      return [
-        { label: "Spend", value: formatCurrency(totals.spend) },
-        { label: "Impressions", value: formatNumber(totals.impressions) },
-        { label: "Clicks", value: formatNumber(totals.clicks) },
-        { label: "Leads", value: formatNumber(totals.leads) },
-        {
-          label: "CPL",
-          value: formatCurrency(calcCPL(totals.spend, totals.leads)),
-        },
-        ...reachEfficiencyCards,
-      ];
-    case "sales":
-      return [
-        { label: "Spend", value: formatCurrency(totals.spend) },
-        { label: "Impressions", value: formatNumber(totals.impressions) },
-        { label: "Clicks", value: formatNumber(totals.clicks) },
-        { label: "Conversions", value: formatNumber(totals.conversions) },
-        {
-          label: "CPA",
-          value: formatCurrency(calcCPA(totals.spend, totals.conversions)),
-        },
-        { label: "Revenue", value: formatCurrency(totals.revenue) },
-        {
-          label: "ROAS",
-          value: formatRatio(calcROAS(totals.revenue, totals.spend)),
-        },
-        ...reachEfficiencyCards,
-      ];
-    case "meta_cpas":
-      return [
-        { label: "Spend", value: formatCurrency(totals.spend) },
-        { label: "Impressions", value: formatNumber(totals.impressions) },
-        { label: "Clicks", value: formatNumber(totals.clicks) },
-        {
-          label: "View Product Page",
-          value: formatNumber(totals.viewProductPage),
-        },
-        { label: "Add to Cart", value: formatNumber(totals.addToCart) },
-        {
-          label: "Add to Cart Value",
-          value: formatCurrency(totals.addToCartValue),
-        },
-        {
-          label: "Cost/Add to Cart",
-          value: formatCurrency(
-            calcCostPerAddToCart(totals.spend, totals.addToCart)
-          ),
-        },
-        {
-          label: "Add to Cart Rate",
-          value: formatPercent(
-            calcAddToCartRate(totals.addToCart, totals.viewProductPage)
-          ),
-        },
-        { label: "Purchases", value: formatNumber(totals.purchases) },
-        {
-          label: "Conversion Rate",
-          value: formatPercent(
-            calcCartToPurchaseRate(totals.purchases, totals.addToCart)
-          ),
-        },
-        {
-          label: "Cost/Purchase",
-          value: formatCurrency(calcCPA(totals.spend, totals.purchases)),
-        },
-        { label: "Revenue", value: formatCurrency(totals.revenue) },
-        {
-          label: "ROAS",
-          value: formatRatio(calcROAS(totals.revenue, totals.spend)),
-        },
-        ...reachEfficiencyCards,
-      ];
-  }
+  return getObjectiveMetricDescriptors(objective).map((d) => ({
+    key: d.key,
+    label: d.label,
+    value: d.format(d.getValue(totals)),
+  }));
 }
 
 export function objectiveSummaryTitle(objective: Objective) {

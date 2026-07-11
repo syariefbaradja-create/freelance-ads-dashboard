@@ -34,15 +34,31 @@ export function buildTrend(
   fields: MetricFieldKey[]
 ): TrendPoint[] {
   const buckets = new Map<string, TrendPoint>();
+  // frequency is an average metric (like in aggregateMetrics), not a sum —
+  // tracked separately per bucket so it can be divided out at the end.
+  const frequencySums = new Map<string, { sum: number; count: number }>();
 
   for (const row of rows) {
     const key = granularity === "weekly" ? getWeekStart(row.date) : row.date;
     const existing = buckets.get(key) ?? { bucket: key, spend: 0 };
     existing.spend = (existing.spend ?? 0) + row.spend;
     for (const field of fields) {
+      if (field === "frequency") continue;
       existing[field] = (existing[field] ?? 0) + (row[field] ?? 0);
     }
     buckets.set(key, existing);
+
+    if (fields.includes("frequency") && row.frequency != null) {
+      const freq = frequencySums.get(key) ?? { sum: 0, count: 0 };
+      freq.sum += row.frequency;
+      freq.count += 1;
+      frequencySums.set(key, freq);
+    }
+  }
+
+  for (const [key, point] of buckets) {
+    const freq = frequencySums.get(key);
+    point.frequency = freq ? freq.sum / freq.count : undefined;
   }
 
   return Array.from(buckets.values()).sort((a, b) =>
